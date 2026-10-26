@@ -3,7 +3,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const { createPortfolioServer } = require('../dev-server');
+const { createPortfolioServer } = require('../server');
 const {
     processContactRequest,
     resetRateLimitStore,
@@ -57,12 +57,12 @@ async function runTests() {
         }
         console.log('[PASS] All public static assets (/css/style.css, /js/script.js, hero PNG) return 200 OK.');
 
-        // 2.3 Private file protection (.env, dev-server.js, api/contact.js, encoded path traversal)
-        for (const forbidden of ['/.env', '/.env.example', '/dev-server.js', '/api/contact.js', '/package.json', '/%2e%2e/dev-server.js', '/css/%2e%2e/dev-server.js']) {
+        // 2.3 Private file protection (.env, server.js, api/contact.js, encoded path traversal)
+        for (const forbidden of ['/.env', '/.env.example', '/server.js', '/api/contact.js', '/package.json', '/%2e%2e/server.js', '/css/%2e%2e/server.js']) {
             const res = await fetch(`${baseUrl}${forbidden}`);
             assert.strictEqual(res.status, 404, `Private path ${forbidden} was not blocked`);
         }
-        console.log('[PASS] Private server files (.env, dev-server.js, api/contact.js, package.json, encoded traversal) are strictly blocked (404).');
+        console.log('[PASS] Private server files (.env, server.js, api/contact.js, package.json, encoded traversal) are strictly blocked (404).');
 
         // 2.4 Health check endpoint
         const healthRes = await fetch(`${baseUrl}/api/health`);

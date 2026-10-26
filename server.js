@@ -167,7 +167,10 @@ function createPortfolioServer() {
             return;
         }
 
-        const fullPath = path.join(__dirname, relPath);
+        let fullPath = path.join(__dirname, relPath);
+        if (!fs.existsSync(fullPath)) {
+            fullPath = path.join(process.cwd(), relPath);
+        }
         fs.stat(fullPath, (err, stats) => {
             if (err || !stats.isFile()) {
                 res.statusCode = 404;
