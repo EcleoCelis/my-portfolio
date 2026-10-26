@@ -1,7 +1,0 @@
-dev-server.js
-server.js
-tests/
-scratch/
-docs/
-.env*
-*.log
