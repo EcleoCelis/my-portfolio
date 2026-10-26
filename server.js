@@ -202,12 +202,19 @@ function createPortfolioServer() {
     });
 }
 
+const serverInstance = createPortfolioServer();
+
 if (require.main === module) {
     const port = Number(process.env.PORT) || 3000;
-    const server = createPortfolioServer();
-    server.listen(port, () => {
+    serverInstance.listen(port, () => {
         console.log(`Portfolio server running at http://localhost:${port}`);
     });
 }
 
-module.exports = { createPortfolioServer, isAllowedStaticPath };
+const serverlessHandler = (req, res) => {
+    serverInstance.emit('request', req, res);
+};
+
+module.exports = serverlessHandler;
+module.exports.createPortfolioServer = createPortfolioServer;
+module.exports.isAllowedStaticPath = isAllowedStaticPath;
