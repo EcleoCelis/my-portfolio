@@ -4,8 +4,8 @@
   "private": true,
   "description": "Professional developer and UI/UX portfolio of Celis Jomarie with serverless contact API.",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js",
+    "start": "node dev-server.js",
+    "dev": "node dev-server.js",
     "test": "node tests/e2e-verification.js"
   },
   "engines": {

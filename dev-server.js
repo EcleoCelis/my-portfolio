@@ -54,7 +54,7 @@ function isAllowedStaticPath(relPath) {
     if (!relPath) return true;
     const normalized = relPath.replace(/\\/g, '/');
     if (normalized.includes('..') || normalized.startsWith('.')) return false;
-    if (normalized === 'server.js' || normalized.startsWith('api/') || normalized.startsWith('lib/') || normalized.startsWith('tests/') || normalized.startsWith('docs/')) {
+    if (normalized === 'server.js' || normalized === 'dev-server.js' || normalized.startsWith('api/') || normalized.startsWith('lib/') || normalized.startsWith('tests/') || normalized.startsWith('docs/')) {
         return false;
     }
     if (!normalized.includes('/') && normalized.endsWith('.html')) return true;
