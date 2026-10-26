@@ -4,6 +4,7 @@
   "private": true,
   "description": "Professional developer and UI/UX portfolio of Celis Jomarie with serverless contact API.",
   "scripts": {
+    "build": "echo 'No compilation step needed for static assets'",
     "start": "node dev-server.js",
     "dev": "node dev-server.js",
     "test": "node tests/e2e-verification.js"
