@@ -1,0 +1,14 @@
+# Environment & Secrets (NEVER commit real credentials)
+.env
+.env.*
+!.env.example
+
+# Node & OS artifacts
+node_modules/
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# Deployment build caches
+.vercel/
+.netlify/

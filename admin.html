@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Portfolio Admin CMS | Celis Jomarie</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23121214'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='700' font-size='28' fill='%23ffffff'%3ECJ%3Ctspan fill='%232563eb'%3E.%3C/tspan%3E%3C/text%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <script>
+        (function () {
+            try {
+                var stored = localStorage.getItem('theme');
+                var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (stored === 'dark' || (!stored && prefersDark)) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="admin-body">
+
+    <header class="navbar navbar--scrolled admin-navbar">
+        <div class="navbar__container admin-navbar__container">
+            <a href="/" class="admin-brand" aria-label="Back to portfolio">
+                <span class="admin-brand__logo">CJ<span>.</span></span>
+                <span class="admin-brand__badge">CMS PORTAL</span>
+            </a>
+            <div class="navbar__actions admin-navbar__actions">
+                <a href="/" class="btn btn--sm btn--secondary admin-btn-nav">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    <span>View Live Portfolio</span>
+                </a>
+                <button type="button" class="btn btn--sm btn--secondary admin-btn-logout" id="adminLogoutBtn" hidden>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    <span>Log Out</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="admin-main container">
+        <!-- System Configuration Status Banner -->
+        <div class="admin-sys-bar" id="adminSystemBar">
+            <div class="admin-sys-pill" id="sysDbStatus">
+                <span class="admin-status-dot admin-status-dot--warn" aria-hidden="true"></span>
+                <span class="admin-sys-pill__text">PostgreSQL: Checking...</span>
+            </div>
+            <div class="admin-sys-pill" id="sysEmailStatus">
+                <span class="admin-status-dot admin-status-dot--warn" aria-hidden="true"></span>
+                <span class="admin-sys-pill__text">Email Relay: Checking...</span>
+            </div>
+            <div class="admin-sys-pill" id="sysRecipient">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                <span class="admin-sys-pill__text">Recipient: jomaricelis22@gmail.com</span>
+            </div>
+        </div>
+
+        <!-- Login Panel -->
+        <section class="admin-login-card" id="adminLoginSection">
+            <div class="admin-login-card__header">
+                <div class="admin-login-card__icon" aria-hidden="true">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </div>
+                <h1 class="admin-title">Administrator Sign In</h1>
+                <p class="paragraph">Enter your configured <code>ADMIN_PASSWORD</code> to manage PostgreSQL projects, upload screenshots, and read incoming hiring inquiries.</p>
+            </div>
+            <form id="adminLoginForm" class="form admin-form" novalidate>
+                <div class="form__group">
+                    <label for="adminPassword" class="form__label">Admin Password</label>
+                    <input type="password" id="adminPassword" name="password" class="form__input" placeholder="Enter ADMIN_PASSWORD" required autocomplete="current-password">
+                </div>
+                <button type="submit" id="adminLoginSubmit" class="btn btn--primary btn--full admin-btn-submit">
+                    <span>Sign In to Dashboard</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
+                <div class="form__success form__success--error" id="adminLoginError" role="alert"></div>
+            </form>
+        </section>
+
+        <!-- Authenticated Dashboard Panel -->
+        <div id="adminDashboardSection" hidden>
+            <!-- Navigation Tabs -->
+            <div class="admin-tabs" role="tablist" aria-label="Admin sections">
+                <button type="button" class="admin-tab-btn active" id="tabProjectsBtn" role="tab" aria-selected="true" aria-controls="panelProjects">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                    <span>Projects &amp; Screenshots</span>
+                </button>
+                <button type="button" class="admin-tab-btn" id="tabMessagesBtn" role="tab" aria-selected="false" aria-controls="panelMessages">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    <span>Hiring Inquiries</span>
+                    <span class="admin-count-badge" id="unreadCountBadge">0</span>
+                </button>
+            </div>
+
+            <!-- Panel 1: Projects Management -->
+            <section id="panelProjects" role="tabpanel" aria-labelledby="tabProjectsBtn">
+                <div class="admin-grid">
+                    <!-- Add / Edit Project Form -->
+                    <div class="admin-panel-card">
+                        <div class="admin-panel-card__header">
+                            <div>
+                                <h2 class="admin-subtitle" id="projectFormHeading">Add New Project</h2>
+                                <p class="admin-panel-card__desc">Changes are persisted to PostgreSQL and rendered dynamically on your live portfolio.</p>
+                            </div>
+                            <button type="button" class="btn btn--sm btn--secondary" id="resetProjectFormBtn" hidden>Cancel Edit</button>
+                        </div>
+                        <form id="projectEditorForm" class="form admin-form" novalidate>
+                            <input type="hidden" id="projId" name="id">
+                            <input type="hidden" id="projType" name="project_type" value="system">
+                            <input type="hidden" id="projSlug" name="slug">
+
+                            <!-- Project Format Switcher -->
+                            <div class="admin-type-switch" role="group" aria-label="Select Project Format">
+                                <button type="button" class="admin-type-btn active" id="typeSystemBtn" data-type="system">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                                    <span class="admin-type-btn__text">
+                                        <strong>Software / Code Project</strong>
+                                        <small>APIs, Full-stack apps, repositories &amp; code</small>
+                                    </span>
+                                </button>
+                                <button type="button" class="admin-type-btn" id="typeDesignBtn" data-type="design">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>
+                                    <span class="admin-type-btn__text">
+                                        <strong>Design &amp; Visual Showcase</strong>
+                                        <small>UI/UX Design, Graphic Design, Prototypes &amp; Brand</small>
+                                    </span>
+                                </button>
+                            </div>
+
+                            <!-- Section 1: Core Essentials (Common to both) -->
+                            <div class="admin-form-section">
+                                <span class="admin-section-tag">1. Basic Details</span>
+                                <div class="form__group">
+                                    <label for="projTitle" class="form__label">Project Title <span class="admin-req">*</span></label>
+                                    <input type="text" id="projTitle" class="form__input" placeholder="e.g., NutriCare Health Platform" required>
+                                </div>
+                                <div class="form__group">
+                                    <label for="projCategory" class="form__label">
+                                        Category <span class="admin-req">*</span>
+                                        <span class="admin-label-hint">(Pick existing or type a brand new category)</span>
+                                    </label>
+                                    <input type="text" id="projCategory" class="form__input" placeholder="e.g., Health Tech, UI/UX Design, Graphic Design" list="categoriesDatalist" required autocomplete="off">
+                                    <datalist id="categoriesDatalist"></datalist>
+                                    <div class="admin-quick-categories" id="quickCategoryChips" aria-label="Suggested Categories"></div>
+                                </div>
+                                <div class="form__group">
+                                    <label for="projDesc" class="form__label" id="projDescLabel">Short Card Overview <span class="admin-req">*</span></label>
+                                    <textarea id="projDesc" rows="3" class="form__input form__textarea" placeholder="Concise overview shown on the project card..." required></textarea>
+                                </div>
+                                <div class="form__group">
+                                    <label for="projOrder" class="form__label">Display Priority Order <span class="admin-label-hint">(Lower numbers appear first)</span></label>
+                                    <input type="number" id="projOrder" class="form__input" value="1" min="0" max="999">
+                                </div>
+                            </div>
+
+                            <!-- Section 2A: Software / Code Project Fields (Only shown for system) -->
+                            <div id="groupSystemFields" class="admin-form-section">
+                                <span class="admin-section-tag">2. Code Repositories &amp; Engineering Details</span>
+                                <div class="form__row">
+                                    <div class="form__group">
+                                        <label for="projRepoUrl" class="form__label">
+                                            GitHub Source Code URL
+                                            <span class="admin-label-hint">(Leave empty to label card as In-development)</span>
+                                        </label>
+                                        <input type="url" id="projRepoUrl" class="form__input" placeholder="https://github.com/username/project">
+                                    </div>
+                                    <div class="form__group">
+                                        <label for="projLiveUrl" class="form__label">
+                                            Live Deployment / Demo URL
+                                            <span class="admin-label-hint">(Leave empty if not yet deployed)</span>
+                                        </label>
+                                        <input type="url" id="projLiveUrl" class="form__input" placeholder="https://project-demo.com">
+                                    </div>
+                                </div>
+                                <div class="form__group">
+                                    <label for="projTech" class="form__label">Tech Stack (Comma-separated)</label>
+                                    <input type="text" id="projTech" class="form__input" placeholder="e.g., Laravel, Tailwind CSS, PostgreSQL, REST API">
+                                </div>
+                                <div class="form__group">
+                                    <label for="projRole" class="form__label">Engineering Role &amp; Contributions</label>
+                                    <textarea id="projRole" rows="2" class="form__input form__textarea" placeholder="e.g., Capstone Leader — Led backend queries, database schema design, and responsive interface..."></textarea>
+                                </div>
+                                <div class="form__group">
+                                    <label for="projHighlights" class="form__label">Key Architectural Capabilities (One per line)</label>
+                                    <textarea id="projHighlights" rows="3" class="form__input form__textarea" placeholder="Engineered relational PostgreSQL schemas&#10;Built responsive interface with Tailwind CSS&#10;Optimized data access and query latency"></textarea>
+                                </div>
+                                <div class="form__group">
+                                    <label for="projStatusNote" class="form__label">Availability &amp; Access Note</label>
+                                    <input type="text" id="projStatusNote" class="form__input" placeholder="e.g., Code publicly available on GitHub or by walkthrough request">
+                                </div>
+                            </div>
+
+                            <!-- Section 2B: Visual / Design Showcase Fields (Only shown for design) -->
+                            <div id="groupDesignFields" class="admin-form-section" hidden>
+                                <span class="admin-section-tag">2. Design Presentation &amp; Creative Deliverables</span>
+                                <div class="form__group">
+                                    <label for="projDesignPrototypeUrl" class="form__label">
+                                        Interactive Prototype / Presentation URL
+                                        <span class="admin-label-hint">(Leave empty to label card as Design in Progress)</span>
+                                    </label>
+                                    <input type="url" id="projDesignPrototypeUrl" class="form__input" placeholder="e.g., https://www.figma.com/proto/... or Behance URL">
+                                </div>
+                                <div class="form__group">
+                                    <label for="projDesignTools" class="form__label">Design Tools &amp; Deliverables (Comma-separated)</label>
+                                    <input type="text" id="projDesignTools" class="form__input" placeholder="e.g., Figma, Adobe Illustrator, Design System, Wireframes">
+                                </div>
+                                <div class="form__group">
+                                    <label for="projDesignRole" class="form__label">Design Role &amp; Creative Process</label>
+                                    <textarea id="projDesignRole" rows="2" class="form__input form__textarea" placeholder="e.g., Lead Product Designer — Conducted user research, user journey flows, and high-fidelity design system..."></textarea>
+                                </div>
+                                <div class="form__group">
+                                    <label for="projDesignHighlights" class="form__label">Key Design Highlights &amp; Outcomes (One per line)</label>
+                                    <textarea id="projDesignHighlights" rows="3" class="form__input form__textarea" placeholder="Created scalable component library and token-based design system&#10;Conducted usability testing across mobile viewports&#10;Delivered export-ready vector assets and design specs"></textarea>
+                                </div>
+                                <div class="form__group">
+                                    <label for="projDesignStatusNote" class="form__label">Presentation &amp; Prototype Note</label>
+                                    <input type="text" id="projDesignStatusNote" class="form__input" placeholder="e.g., Interactive prototype available in Figma upon request">
+                                </div>
+                            </div>
+
+                            <!-- Section 3: Visual Screenshot / Mockup Upload (Common to both) -->
+                            <div class="admin-form-section">
+                                <span class="admin-section-tag" id="projImageSectionTag">3. Project Screenshot / Mockup</span>
+                                <input type="hidden" id="projImageData">
+                                
+                                <div class="admin-dropzone" id="projDropzone">
+                                    <input type="file" id="projImageInput" accept="image/png,image/jpeg,image/webp,image/gif" class="admin-dropzone__input">
+                                    <div class="admin-dropzone__content">
+                                        <div class="admin-dropzone__icon" aria-hidden="true">
+                                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                                        </div>
+                                        <p class="admin-dropzone__text"><strong id="dropzoneMainText">Click to upload screenshot</strong> or drag &amp; drop</p>
+                                        <span class="admin-dropzone__hint">PNG, JPEG, WebP, or GIF (max 2.8 MB) — Stored directly in PostgreSQL</span>
+                                    </div>
+                                </div>
+
+                                <div class="admin-image-preview" id="projImagePreviewBox" hidden>
+                                    <div class="admin-image-preview__frame">
+                                        <img id="projImagePreview" alt="Project screenshot preview">
+                                    </div>
+                                    <div class="admin-image-preview__actions">
+                                        <span class="admin-image-preview__label" id="projImagePreviewLabel">Screenshot loaded</span>
+                                        <button type="button" class="btn btn--sm btn--secondary admin-btn-danger" id="clearProjImageBtn">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                            <span>Remove Image</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" id="saveProjectBtn" class="btn btn--primary btn--full admin-btn-save">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                                <span>Save Project to PostgreSQL</span>
+                            </button>
+                            <div class="form__success" id="projectFormStatus" role="status" aria-live="polite"></div>
+                        </form>
+                    </div>
+
+                    <!-- Existing Projects List -->
+                    <div class="admin-panel-card">
+                        <div class="admin-panel-card__header">
+                            <div>
+                                <h2 class="admin-subtitle">Live Portfolio Projects</h2>
+                                <p class="admin-panel-card__desc">Current projects stored in database and rendered on public portfolio.</p>
+                            </div>
+                        </div>
+                        <div id="adminProjectsList" class="admin-projects-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Panel 2: Contact Inquiries Inbox -->
+            <section id="panelMessages" role="tabpanel" aria-labelledby="tabMessagesBtn" hidden>
+                <div class="admin-panel-card">
+                    <div class="admin-panel-card__header">
+                        <div>
+                            <h2 class="admin-subtitle">Hiring Inquiries &amp; Messages</h2>
+                            <p class="admin-panel-card__desc">Messages submitted by recruiters/hiring managers are emailed to <strong>jomaricelis22@gmail.com</strong> and archived below in PostgreSQL.</p>
+                        </div>
+                        <button type="button" class="btn btn--sm btn--secondary admin-btn-refresh" id="refreshMessagesBtn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                            <span>Refresh Inbox</span>
+                        </button>
+                    </div>
+
+                    <!-- Bulk Selection & Accordion Actions Bar -->
+                    <div class="admin-inquiries-toolbar" id="inquiriesToolbar" hidden>
+                        <div class="admin-inquiries-bulk">
+                            <label class="admin-checkbox-label" for="selectAllInquiries">
+                                <input type="checkbox" id="selectAllInquiries" class="admin-checkbox">
+                                <span>Select All</span>
+                            </label>
+                            <span class="admin-selection-count" id="inquiriesSelectedCount">0 selected</span>
+                        </div>
+                        <div class="admin-inquiries-bulk-actions">
+                            <button type="button" class="btn btn--sm btn--secondary" id="toggleAllInquiriesAccordionBtn" title="Expand or collapse all inquiry details">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                <span id="toggleAllAccordionLabel">Expand All</span>
+                            </button>
+                            <button type="button" class="btn btn--sm btn--secondary admin-btn-danger" id="bulkDeleteInquiriesBtn" disabled>
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                <span>Delete Selected</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="adminMessagesList" class="admin-messages-list"></div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>

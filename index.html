@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celis Jomarie | 4th-Year BSIT Student & IT Aspirant</title>
+    <meta name="description" content="Portfolio of Celis Jomarie, a 4th-year BSIT student seeking entry-level IT opportunities in computer troubleshooting, network configuration, system administration, and web technology.">
+    <meta property="og:title" content="Celis Jomarie | 4th-Year BSIT Student & IT Aspirant">
+    <meta property="og:description" content="Portfolio of Celis Jomarie, a 4th-year BSIT student seeking entry-level IT opportunities in computer troubleshooting, network configuration, system administration, and web technology.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="assets/images/IMG_20230626_135533-removebg-preview.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Celis Jomarie | Future Employee of Your Company">
+    <meta name="twitter:description" content="Professional portfolio of Celis Jomarie, specializing in minimalist, user-friendly web applications and exceptional user experiences.">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23121214'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='700' font-size='28' fill='%23ffffff'%3ECJ%3Ctspan fill='%232563eb'%3E.%3C/tspan%3E%3C/text%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <script>
+        (function () {
+            document.documentElement.classList.add('js');
+            try {
+                var stored = localStorage.getItem('theme');
+                var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (stored === 'dark' || (!stored && prefersDark)) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <a href="#mainContent" class="skip-link">Skip to main content</a>
+
+    <header class="navbar" id="navbar">
+        <div class="navbar__container">
+            <a href="#home" class="navbar__logo" aria-label="Homepage">C  J<span>.</span></a>
+            
+            <nav class="navbar__menu" id="navbarMenu" aria-label="Primary navigation">
+                <ul class="navbar__list">
+                    <li><a href="#home" class="navbar__link active-link">Home</a></li>
+                    <li><a href="#about" class="navbar__link">About Me</a></li>
+                    <li><a href="#skills" class="navbar__link">Skills</a></li>
+                    <li><a href="#services" class="navbar__link">Services</a></li>
+                    <li><a href="#projects" class="navbar__link">Projects</a></li>
+                    <li><a href="#experience" class="navbar__link">Experience</a></li>
+                    <li><a href="#certificates" class="navbar__link">Certificates</a></li>
+                    <li><a href="#contact" class="navbar__link">Contact</a></li>
+                </ul>
+            </nav>
+
+            <div class="navbar__actions">
+                <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" aria-pressed="false">
+                    <svg class="sun-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    <svg class="moon-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
+                <button type="button" class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false" aria-controls="navbarMenu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main id="mainContent">
+        <section id="home" class="hero section">
+            <div class="hero__bg-grid"></div>
+            <div class="hero__container container">
+                <div class="hero__content scroll-reveal">
+                    <h1 class="hero__title">Hello, I'm <span class="hero__name">Celis Jomarie</span><br><span id="typing-text"></span></h1>
+                    <p class="hero__desc">4th-year BSIT student actively seeking any suitable entry-level IT opportunity that an employer can offer. Equipped with foundational skills and a strong passion for computer troubleshooting, networking setup &amp; configuration, system administration, and web technologies; ready to learn, adapt, and contribute to your team.</p>
+                    <div class="hero__actions">
+                        <a href="#projects" class="btn btn--primary">View Projects</a>
+                        <a href="#contact" class="btn btn--secondary">Talk to Me</a>
+                        <a href="assets/docs/Celis-Jomarie-Resume.pdf" id="resumeDownloadLink" class="btn btn--secondary" data-resume-link download>Download Resume (PDF)</a>
+                    </div>
+                    <p class="hero__resume-status" id="resumeStatusNote" role="status" aria-live="polite" hidden></p>
+                </div>
+                <div class="hero__visual scroll-reveal">
+                    <div class="hero__avatar-frame">
+                        <div class="hero__avatar-placeholder">
+                            <img src="assets/images/IMG_20230626_135533-removebg-preview.png" alt="Portrait of Celis Jomarie" width="478" height="522" fetchpriority="high" class="my-profile">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Density & Pagination Controls -->
+                <div class="projects__pagination-wrapper" id="projectsPaginationWrapper" hidden>
+                    <p class="projects__count-text" id="projectsCountText"></p>
+                    <div class="projects__pagination-actions">
+                        <button type="button" class="btn btn--secondary" id="projectsShowMoreBtn">
+                            <span>Show More Projects</span>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        <button type="button" class="btn btn--secondary" id="projectsShowLessBtn" hidden>
+                            <span>Show Less</span>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                        </button>
+                    </div>
+                </div>        
+            </div>
+        </section>
+
+        <section id="about" class="about section">
+            <div class="container">
+                <h2 class="section-title scroll-reveal">About Me</h2>
+                <div class="about__grid">
+                    <div class="about__bio scroll-reveal">
+                        <p class="paragraph">I am a 4th-year Bachelor of Science in Information Technology (BSIT) student currently looking for any suitable entry-level job or opportunity that an employer can offer. Rather than focusing strictly on being a developer, I am open and eager to explore any entry-level IT role where I can apply my foundational knowledge, gain practical workplace experience, and learn from experienced mentors.</p>
+                        <p class="paragraph">I have basic skills and a strong passion for core IT operations—including computer troubleshooting, networking setup &amp; configuration, and basic system administration. I enjoy diagnosing hardware and software issues, setting up dependable network connections, and supporting everyday technical problem-solving.</p>
+                        <p class="paragraph">Alongside my IT studies and technical coursework, I also have a strong passion for graphic design, with hands-on experience creating brochures, movie posters, and product promotional materials using Adobe Photoshop.</p>
+                        <h3 class="about__subtitle">Education</h3>
+                        <ul class="about__edu-list">
+                            <li>
+                                <strong>B.S. in Information Technology</strong><br>
+                                Buenavista Community College / 2023 — 2027
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="about__facts scroll-reveal">
+                        <h3 class="about__subtitle">My Motto</h3>
+                        <blockquote>"Having LESS is MORE, because simplicity creates the greatest impacts."</blockquote>
+                        <div class="about__counters">
+                            <div class="counter-card">
+                                <span class="counter-card__number" data-target="50">50</span><span class="counter-card__plus">+</span>
+                                <p class="counter-card__label">Projects Completed</p>
+                            </div>
+                            <div class="counter-card">
+                                <span class="counter-card__number" data-target="15">15</span><span class="counter-card__plus">+</span>
+                                <p class="counter-card__label">Happy Clients</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="skills" class="skills section bg-light">
+            <div class="container">
+                <h2 class="section-title scroll-reveal">Technical Expertise</h2>
+                <div class="skills__grid">
+                    <div class="skills__card scroll-reveal">
+                        <h3 class="skills__category">Frontend</h3>
+                        <div class="skills__item">
+                            <div class="skills__info"><span>HTML5 / CSS3</span><span>70%</span></div>
+                            <div class="skills__progress-bar"><div class="skills__progress" style="width: 70%"></div></div>
+                        </div>
+                        <div class="skills__item">
+                            <div class="skills__info"><span>JavaScript (ES6+)</span><span>45%</span></div>
+                            <div class="skills__progress-bar"><div class="skills__progress" style="width: 45%"></div></div>
+                        </div>
+                        <div class="skills__item">
+                            <div class="skills__info"><span>Tailwind CSS</span><span>32%</span></div>
+                            <div class="skills__progress-bar"><div class="skills__progress" style="width: 32%"></div></div>
+                        </div>
+                    </div>
+                    <div class="skills__card scroll-reveal">
+                        <h3 class="skills__category">Backend</h3>
+                        <div class="skills__item">
+                            <div class="skills__info"><span>Python Flask</span><span>35%</span></div>
+                            <div class="skills__progress-bar"><div class="skills__progress" style="width: 35%"></div></div>
+                        </div>
+                        <div class="skills__item">
+                            <div class="skills__info"><span>Laravel / PHP</span><span>68%</span></div>
+                            <div class="skills__progress-bar"><div class="skills__progress" style="width: 68%"></div></div>
+                        </div>
+                    </div>
+                    <div class="skills__card scroll-reveal">
+                        <h3 class="skills__category">Data & Tools</h3>
+                        <div class="skills__item">
+                            <div class="skills__info"><span>PostgreSQL / MySQL</span><span>75%</span></div>
+                            <div class="skills__progress-bar"><div class="skills__progress" style="width: 75%"></div></div>
+                        </div>
+                        <div class="skills__item">
+                            <div class="skills__info"><span>Git / GitHub</span><span>75%</span></div>
+                            <div class="skills__progress-bar"><div class="skills__progress" style="width: 75%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="services" class="services section">
+            <div class="container">
+                <h2 class="section-title scroll-reveal">Services Offered</h2>
+                <div class="services__grid">
+                    <div class="services__card scroll-reveal">
+                        <div class="services__icon" aria-hidden="true">⚙️</div>
+                        <h3 class="services__title">Web Development</h3>
+                        <p class="services__desc">Building accessible, semantic, clean-coded, and standards-compliant web architectures using modern conventions.</p>
+                    </div>
+                    <div class="services__card scroll-reveal">
+                        <div class="services__icon" aria-hidden="true">📐</div>
+                        <h3 class="services__title">UI/UX Interface Design</h3>
+                        <p class="services__desc">Framer-grade minimalist mockups planned systematically around strict spacing rules and typography scales.</p>
+                    </div>
+                    <div class="services__card scroll-reveal">
+                        <div class="services__icon" aria-hidden="true">📱</div>
+                        <h3 class="services__title">Responsive Crafting</h3>
+                        <p class="services__desc">Fluid breakless interfaces crafted explicitly to format elegantly on ultra-wide screens down to compact mobile units.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects" class="projects section bg-light">
+            <div class="container">
+                <div class="projects__header">
+                    <h2 class="section-title projects__section-title scroll-reveal">Featured Projects</h2>
+                    <a href="projects.html" class="projects__view-all-link scroll-reveal" id="viewAllProjectsHeaderLink" aria-label="View all projects in the archive">
+                        <span>View All Projects</span>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </a>
+                </div> 
+                
+                <div class="projects__filters scroll-reveal" role="group" aria-label="Filter projects by category">
+                    <button type="button" class="filter-btn active" data-filter="all" aria-pressed="true">All Ecosystems</button>
+                </div>
+
+                <div class="projects__grid">
+                    <div class="project-card scroll-reveal" data-category="health" data-project-id="nutricare">
+                        <div class="project-card__image-wrapper">
+                            <div class="project-card__placeholder"><span>NutriCare Hub</span></div>
+                        </div>
+                        <div class="project-card__content">
+                            <div class="project-card__header-meta">
+                                <span class="project-card__tag">Health Tech</span>
+                                <span class="project-card__type-pill project-card__type-pill--system">💻 Code</span>
+                                <span class="project-card__status-pill project-card__status-pill--dev">In-development</span>
+                            </div>
+                            <h3 class="project-card__title">NutriCare platform</h3>
+                            <p class="project-card__desc">A secure, cloud-enabled operational community platform offering offline metrics gathering and healthcare visualization analytics.</p>
+                            <div class="project-card__tech">
+                                <span>Laravel</span>
+                                <span>Tailwind CSS</span>
+                                <span>PostgreSQL</span>
+                            </div>
+                            <div class="project-card__links">
+                                <button type="button" class="project-card__case-btn project-case-study-btn" data-project-modal="nutricare" aria-haspopup="dialog">Case Study</button>
+                                <div class="project-card__ext-links">
+                                    <span class="project-card__dev-badge" title="Source repository and live deployment in active development"><span class="project-card__dev-dot"></span>In-development</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="experience" class="experience section">
+            <div class="container">
+                <h2 class="section-title scroll-reveal">Academic Experience</h2>
+                <div class="timeline">
+                    <div class="timeline__item scroll-reveal">
+                        <div class="timeline__dot"></div>
+                        <div class="timeline__date">2025 — Present</div>
+                        <div class="timeline__content">
+                            <h3 class="timeline__role">Capstone Project Leader</h3>
+                            <h4 class="timeline__company">NutriCare WebApp.</h4>
+                            <p class="timeline__desc">Developed layout designs using Laravel and native layouts, optimized relational database queries, and integrated analytics subsystems.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section id="certificates" class="certificates section bg-light">
+            <div class="container">
+                <h2 class="section-title scroll-reveal">Certifications</h2>
+                <div class="certificates__grid">
+                    <div class="cert-card scroll-reveal">
+                        <div class="cert-card__icon" aria-hidden="true">📜</div>
+                        <h3 class="cert-card__title">Introduction to Cybersecurity</h3>
+                        <p class="cert-card__org">NetAcads</p>
+                        <span class="cert-card__date">Issued January 2025</span>
+                        <span class="cert-card__link cert-card__link--disabled" aria-disabled="true" title="Verification URL pending configuration">Credential URL Pending</span>
+                    </div>
+                    <div class="cert-card scroll-reveal">
+                        <div class="cert-card__icon" aria-hidden="true">📜</div>
+                        <h3 class="cert-card__title">Introduction to Machine Learning</h3>
+                        <p class="cert-card__org">NetAcads</p>
+                        <span class="cert-card__date">Issued Aug 2025</span>
+                        <span class="cert-card__link cert-card__link--disabled" aria-disabled="true" title="Verification URL pending configuration">Credential URL Pending</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="testimonials section">
+            <div class="container">
+                <h2 class="section-title scroll-reveal">Peer Endorsements</h2>
+                <div class="carousel-container scroll-reveal">
+                    <div class="carousel" id="testimonialCarousel">
+                        <div class="carousel__item">
+                            <p class="carousel__quote">"Celis organizes layout elements with an executive architectural clarity. The implementation code was perfectly clean."</p>
+                            <h4 class="carousel__author">Engr., MIT </h4>
+                            <span class="carousel__role">Head Department Instructor, BCC </span>
+                        </div>
+                        <div class="carousel__item">
+                            <p class="carousel__quote">"Celis was one of the classroom leader in crafting digital products using Adobe PhotoShop & Illustrator. He is a fast learner and are not Excellent yet but Good in designing digital products, one of these was the restaurant brochure"</p>
+                            <h4 class="carousel__author">J Blanco</h4>
+                            <span class="carousel__role">Senior Graphic Designer, BCC Instructor</span>
+                        </div>
+                    </div>
+                    <div class="carousel-controls">
+                        <button type="button" class="carousel-control-btn" id="prevBtn" aria-label="Previous testimonial">←</button>
+                        <button type="button" class="carousel-control-btn" id="nextBtn" aria-label="Next testimonial">→</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="contact section bg-light">
+            <div class="container">
+                <h2 class="section-title scroll-reveal">Initiate Conversation</h2>
+                <div class="contact__grid">
+                    <div class="contact__info scroll-reveal">
+                        <h3 class="contact__subtitle">Contact Information</h3>
+                        <p class="paragraph">Let's work together to build reliable digital platforms. Reach out using the form or through my verified social channels below.</p>
+                        <ul class="contact__details">
+                            <li><strong>Coordinates:</strong> Bohol, Philippines</li>
+                            <li>
+                                <strong>Secure Email:</strong>
+                                <a href="mailto:jomaricelis22@gmail.com" class="contact__email-link">jomaricelis22@gmail.com</a>
+                                <button type="button" id="copyEmailBtn" class="btn-inline-copy" data-copy-email="jomaricelis22@gmail.com" aria-label="Copy email address jomaricelis22@gmail.com">Copy</button>
+                            </li>
+                        </ul>
+                        <div class="contact__socials">
+                            <span class="contact__social-badge" aria-disabled="true" title="GitHub profile URL pending configuration" aria-label="GitHub Profile (URL pending)">GH</span>
+                            <span class="contact__social-badge" aria-disabled="true" title="Facebook profile URL pending configuration" aria-label="Facebook Profile (URL pending)">FB</span>
+                            <span class="contact__social-badge" aria-disabled="true" title="Twitter profile URL pending configuration" aria-label="Twitter Profile (URL pending)">TW</span>
+                        </div>
+                    </div>
+                    <div class="contact__form-wrapper scroll-reveal">
+                        <form id="contactForm" class="form" action="/api/contact" method="POST" data-endpoint="/api/contact" data-recipient="jomaricelis22@gmail.com" novalidate>
+                            <div class="form__honeypot" aria-hidden="true">
+                                <label for="website">Website (Do not fill this out)</label>
+                                <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+                            </div>
+                            <div class="form__row">
+                                <div class="form__group">
+                                    <label for="name" class="form__label">Full Name <span aria-hidden="true">*</span></label>
+                                    <input type="text" id="name" name="name" class="form__input" placeholder="Your full name" maxlength="120" autocomplete="name" aria-describedby="nameError" required>
+                                    <span class="form__error" id="nameError" role="alert">Full name is required (at least 2 characters).</span>
+                                </div>
+                                <div class="form__group">
+                                    <label for="email" class="form__label">Work or Personal Email <span aria-hidden="true">*</span></label>
+                                    <input type="email" id="email" name="email" class="form__input" placeholder="name@company.com" maxlength="254" autocomplete="email" aria-describedby="emailError" required>
+                                    <span class="form__error" id="emailError" role="alert">Please enter a valid email address.</span>
+                                </div>
+                            </div>
+                            <div class="form__row">
+                                <div class="form__group">
+                                    <label for="company" class="form__label">Company / Organization <span class="form__optional">(Optional)</span></label>
+                                    <input type="text" id="company" name="company" class="form__input" placeholder="Company or institution" maxlength="120" autocomplete="organization">
+                                </div>
+                                <div class="form__group">
+                                    <label for="inquiryType" class="form__label">Inquiry Purpose</label>
+                                    <select id="inquiryType" name="inquiryType" class="form__input form__select">
+                                        <option value="job">Job Opportunity</option>
+                                        <option value="internship">Internship / OJT Opportunity</option>
+                                        <option value="interview">Interview Invitation</option>
+                                        <option value="freelance">Freelance / Project Collaboration</option>
+                                        <option value="technical">Technical Discussion</option>
+                                        <option value="general">General Professional Inquiry</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form__group">
+                                <label for="subject" class="form__label">Subject Line <span class="form__optional">(Optional)</span></label>
+                                <input type="text" id="subject" name="subject" class="form__input" placeholder="e.g., Entry-Level IT Role / Opportunity" maxlength="160" aria-describedby="subjectError">
+                                <span class="form__error" id="subjectError" role="alert">Please enter a valid subject.</span>
+                            </div>
+                            <div class="form__group">
+                                <label for="message" class="form__label">Message <span aria-hidden="true">*</span></label>
+                                <textarea id="message" name="message" rows="5" class="form__input form__textarea" placeholder="Share role details, project scope, or interview availability..." maxlength="4000" aria-describedby="messageError" required></textarea>
+                                <span class="form__error" id="messageError" role="alert">Please enter a message of at least 10 characters.</span>
+                            </div>
+                            <p class="form__privacy-note">
+                                <strong>Privacy Notice:</strong> Your contact details are used solely to respond to your inquiry and are never sold, publicly displayed, or stored in a marketing database.
+                            </p>
+                            <button type="submit" id="contactSubmitBtn" class="btn btn--primary btn--full">Transmit Communication</button>
+                            <div class="form__success" id="formSuccess" role="status" aria-live="polite"></div>
+                            <div class="form__fallback-actions" id="formFallbackActions" hidden>
+                                <a href="mailto:jomaricelis22@gmail.com" id="formMailtoFallbackLink" class="btn btn--sm btn--secondary">Open in Email Application (mailto:)</a>
+                                <span class="form__fallback-note">Note: Opening your email client pre-fills your message, but you must press Send in your mail app to complete delivery.</span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer__container">
+            <p class="footer__copy">&copy; 2026 Mr. Celis.</p>
+            <ul class="footer__links">
+                <li><a href="#home">Top</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#projects">Work</a></li>
+               
+            </ul>
+        </div>
+    </footer>
+
+    <div class="modal-backdrop" id="projectModal" role="dialog" aria-modal="true" aria-labelledby="projectModalTitle" aria-describedby="projectModalDesc" hidden>
+        <div class="modal-card">
+            <div class="modal-card__header">
+                <div>
+                    <span class="project-card__tag" id="projectModalTag">Case Study</span>
+                    <h3 class="modal-card__title" id="projectModalTitle">Project Architecture</h3>
+                </div>
+                <button type="button" class="modal-card__close" id="projectModalClose" aria-label="Close project case study">✕</button>
+            </div>
+            <div class="modal-card__body">
+                <p class="modal-card__desc" id="projectModalDesc"></p>
+                <div class="modal-card__section">
+                    <h4 class="modal-card__subtitle" id="projectModalRoleHeading">Role &amp; Engineering Contributions</h4>
+                    <p class="modal-card__text" id="projectModalRole"></p>
+                </div>
+                <div class="modal-card__section">
+                    <h4 class="modal-card__subtitle" id="projectModalHighlightsHeading">Key Capabilities &amp; Architecture</h4>
+                    <ul class="modal-card__list" id="projectModalHighlights"></ul>
+                </div>
+                <div class="modal-card__section">
+                    <h4 class="modal-card__subtitle" id="projectModalTechHeading">Technology Stack</h4>
+                    <div class="project-card__tech" id="projectModalTech"></div>
+                </div>
+                <div class="modal-card__section">
+                    <h4 class="modal-card__subtitle" id="projectModalStatusHeading">Availability &amp; Code Access</h4>
+                    <p class="modal-card__status" id="projectModalStatus"></p>
+                </div>
+            </div>
+            <div class="modal-card__footer">
+                <a href="#contact" class="btn btn--sm btn--primary" id="projectModalInquireBtn">Request Walkthrough / Code Review</a>
+                <button type="button" class="btn btn--sm btn--secondary" id="projectModalDismissBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <button type="button" class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
