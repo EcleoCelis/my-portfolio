@@ -475,10 +475,54 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    /* ==========================================================================
+       IMAGE LIGHTBOX VIEWER ENGINE
+       ========================================================================== */
+    const imageLightboxModal = document.getElementById('imageLightboxModal');
+    const imageLightboxBackdrop = document.getElementById('imageLightboxBackdrop');
+    const imageLightboxClose = document.getElementById('imageLightboxClose');
+    const imageLightboxImg = document.getElementById('imageLightboxImg');
+    const imageLightboxTitle = document.getElementById('imageLightboxTitle');
+    const imageLightboxTag = document.getElementById('imageLightboxTag');
+    let lastFocusedLightboxTrigger = null;
+
+    const openImageLightbox = (imageUrl, title, tag) => {
+        if (!imageLightboxModal || !imageUrl) return;
+        lastFocusedLightboxTrigger = document.activeElement;
+        if (imageLightboxImg) {
+            imageLightboxImg.src = imageUrl;
+            imageLightboxImg.alt = title ? `${title} full view` : 'Project image full preview';
+        }
+        if (imageLightboxTitle) imageLightboxTitle.textContent = title || '';
+        if (imageLightboxTag) imageLightboxTag.textContent = tag || '';
+
+        imageLightboxModal.hidden = false;
+        if (document.body && document.body.style) document.body.style.overflow = 'hidden';
+        if (imageLightboxClose) imageLightboxClose.focus();
+    };
+
+    const closeImageLightbox = () => {
+        if (!imageLightboxModal || imageLightboxModal.hidden) return;
+        imageLightboxModal.hidden = true;
+        if (document.body && document.body.style) document.body.style.overflow = '';
+        if (lastFocusedLightboxTrigger && typeof lastFocusedLightboxTrigger.focus === 'function') {
+            lastFocusedLightboxTrigger.focus();
+        }
+    };
+
+    if (imageLightboxClose) imageLightboxClose.addEventListener('click', closeImageLightbox);
+    if (imageLightboxBackdrop) imageLightboxBackdrop.addEventListener('click', closeImageLightbox);
+
+    /* ==========================================================================
+       CASE STUDY ARCHITECTURAL MODAL DIALOG CONTROLLER
+       ========================================================================== */
     const projectModal = document.getElementById('projectModal');
     const projectModalClose = document.getElementById('projectModalClose');
     const projectModalDismissBtn = document.getElementById('projectModalDismissBtn');
     const projectModalInquireBtn = document.getElementById('projectModalInquireBtn');
+    const projectModalImageContainer = document.getElementById('projectModalImageContainer');
+    const projectModalImg = document.getElementById('projectModalImg');
+    const projectModalZoomBtn = document.getElementById('projectModalZoomBtn');
     const caseStudyButtons = document.querySelectorAll('.project-case-study-btn');
     let lastFocusedModalTrigger = null;
 
@@ -500,6 +544,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if (descEl) descEl.textContent = data.desc;
         if (roleEl) roleEl.textContent = data.role;
         if (statusEl) statusEl.textContent = data.status;
+
+        // Image Showcase in Case Study Modal
+        if (projectModalImageContainer && projectModalImg) {
+            if (data.image_data) {
+                projectModalImg.src = data.image_data;
+                projectModalImg.alt = data.title ? `${data.title} Preview` : 'Project Preview';
+                projectModalImageContainer.hidden = false;
+
+                const triggerZoom = () => openImageLightbox(data.image_data, data.title, data.tag);
+                projectModalImg.onclick = triggerZoom;
+                if (projectModalZoomBtn) projectModalZoomBtn.onclick = triggerZoom;
+            } else {
+                projectModalImg.src = '';
+                projectModalImg.alt = '';
+                projectModalImageContainer.hidden = true;
+            }
+        }
 
         const roleHeading = document.getElementById('projectModalRoleHeading');
         const highlightsHeading = document.getElementById('projectModalHighlightsHeading');
@@ -542,12 +603,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         projectModal.hidden = false;
+        if (document.body && document.body.style) document.body.style.overflow = 'hidden';
         if (projectModalClose) projectModalClose.focus();
     };
 
     const closeProjectModal = () => {
         if (!projectModal || projectModal.hidden) return;
         projectModal.hidden = true;
+        if (document.body && document.body.style) document.body.style.overflow = '';
         if (lastFocusedModalTrigger && typeof lastFocusedModalTrigger.focus === 'function') {
             lastFocusedModalTrigger.focus();
         }
@@ -583,8 +646,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && projectModal && !projectModal.hidden) {
-            closeProjectModal();
+        if (e.key === 'Escape') {
+            if (imageLightboxModal && !imageLightboxModal.hidden) {
+                closeImageLightbox();
+            } else if (projectModal && !projectModal.hidden) {
+                closeProjectModal();
+            }
         }
     });
 
@@ -659,6 +726,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     tag: p.tag || (isDesign ? 'Design Showcase' : 'System Project'),
                     title: p.title,
                     desc: p.description || '',
+                    image_data: p.image_data || '',
                     project_type: p.project_type || 'system',
                     role: p.role_details || p.role_contributions || '',
                     highlights: Array.isArray(p.highlights) && p.highlights.length ? p.highlights : [
@@ -686,8 +754,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 card.setAttribute('data-project-id', slug);
 
                 const imageHtml = p.image_data
-                    ? '<img src="' + p.image_data + '" alt="' + p.title + ' Screenshot" class="project-card__img" loading="lazy">'
-                    : '<div class="project-card__placeholder">' + p.title + '</div>';
+                    ? '<div class="project-card__image-clickable" role="button" tabindex="0" aria-label="View full image for ' + p.title + '">' +
+                      '<img src="' + p.image_data + '" alt="' + p.title + ' Screenshot" class="project-card__img" loading="lazy">' +
+                      '<span class="project-card__zoom-badge" aria-hidden="true">' +
+                      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>' +
+                      '<span>View Image</span>' +
+                      '</span>' +
+                      '</div>'
+                    : '<div class="project-card__placeholder"><span>' + p.title + '</span></div>';
 
                 const techHtml = (Array.isArray(p.tech_stack) ? p.tech_stack : [])
                     .map(t => '<span>' + t + '</span>')
@@ -746,6 +820,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (caseBtn) {
                     caseBtn.addEventListener('click', () => {
                         openProjectModal(slug, caseBtn);
+                    });
+                }
+
+                const imgClickable = card.querySelector('.project-card__image-clickable');
+                if (imgClickable && p.image_data) {
+                    const triggerImageZoom = () => {
+                        openImageLightbox(p.image_data, p.title, p.tag || (isDesign ? 'Design Showcase' : 'System Project'));
+                    };
+                    imgClickable.addEventListener('click', triggerImageZoom);
+                    imgClickable.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            triggerImageZoom();
+                        }
                     });
                 }
 
