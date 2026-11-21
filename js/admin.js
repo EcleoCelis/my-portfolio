@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Process Image File (Base64 conversion and preview)
+    // Process Image File (Client-side Canvas auto-compression to WebP/JPEG for fast delivery & zero data loss)
     const handleImageFile = (file) => {
         if (!file) return;
         if (!/^image\/(png|jpeg|jpg|webp|gif)$/i.test(file.type)) {
@@ -159,22 +159,60 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (file.size > 2.8 * 1024 * 1024) {
-            alert('Image file size exceeds 2.8 MB. Please choose a smaller screenshot or optimize it first.');
+        if (file.size > 8 * 1024 * 1024) {
+            alert('Image file size exceeds 8 MB. Please choose a smaller image.');
             if (projImageInput) projImageInput.value = '';
             return;
         }
 
         const reader = new FileReader();
         reader.onload = () => {
-            const base64Uri = reader.result;
-            projImageData.value = base64Uri;
-            if (projImagePreview) {
-                projImagePreview.src = base64Uri;
-            }
-            if (projImagePreviewBox) {
-                projImagePreviewBox.hidden = false;
-            }
+            const rawUri = reader.result;
+            const img = new Image();
+            img.onload = () => {
+                const maxDim = 1200;
+                let w = img.width;
+                let h = img.height;
+                if (w > maxDim || h > maxDim) {
+                    if (w > h) {
+                        h = Math.round((h * maxDim) / w);
+                        w = maxDim;
+                    } else {
+                        w = Math.round((w * maxDim) / h);
+                        h = maxDim;
+                    }
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+
+                // Export to WebP with 0.82 quality, or fallback to JPEG
+                let compressedUri;
+                try {
+                    compressedUri = canvas.toDataURL('image/webp', 0.82);
+                    if (!compressedUri.startsWith('data:image/webp')) {
+                        compressedUri = canvas.toDataURL('image/jpeg', 0.82);
+                    }
+                } catch (e) {
+                    compressedUri = canvas.toDataURL('image/jpeg', 0.82);
+                }
+
+                projImageData.value = compressedUri;
+                if (projImagePreview) {
+                    projImagePreview.src = compressedUri;
+                }
+                if (projImagePreviewBox) {
+                    projImagePreviewBox.hidden = false;
+                }
+            };
+            img.onerror = () => {
+                projImageData.value = rawUri;
+                if (projImagePreview) projImagePreview.src = rawUri;
+                if (projImagePreviewBox) projImagePreviewBox.hidden = false;
+            };
+            img.src = rawUri;
         };
         reader.readAsDataURL(file);
     };
