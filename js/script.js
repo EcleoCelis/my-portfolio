@@ -205,14 +205,9 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ==========================================================================
        ECOSYSTEM FILTER ENGINE & DENSITY OPTIMIZER (OVERCROWD PREVENTION)
        ========================================================================== */
-    const INITIAL_PROJECTS_LIMIT = 4; // Max initial visible cards to prevent grid overcrowding
-    let currentProjectsLimit = INITIAL_PROJECTS_LIMIT;
+    const INITIAL_PROJECTS_LIMIT = 4; // Max initial visible cards on homepage to prevent grid overcrowding
     let activeFilterCriterion = 'all';
 
-    const projectsPaginationWrapper = document.getElementById('projectsPaginationWrapper');
-    const projectsCountText = document.getElementById('projectsCountText');
-    const projectsShowMoreBtn = document.getElementById('projectsShowMoreBtn');
-    const projectsShowLessBtn = document.getElementById('projectsShowLessBtn');
     const viewAllProjectsBtn = document.getElementById('viewAllProjectsBtn');
     const viewAllProjectsHeaderLink = document.getElementById('viewAllProjectsHeaderLink');
     const totalProjectsCountBadge = document.getElementById('totalProjectsCountBadge');
@@ -232,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const isMatch = activeFilterCriterion === 'all' || category === activeFilterCriterion.toLowerCase();
             if (isMatch) {
                 const matchIndex = matchingCards.indexOf(card);
-                if (matchIndex < currentProjectsLimit) {
+                if (matchIndex < INITIAL_PROJECTS_LIMIT) {
                     card.hidden = false;
                     card.style.display = 'flex';
                     requestAnimationFrame(() => {
@@ -269,28 +264,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (emptyState) {
             emptyState.hidden = true;
         }
-
-        // Manage Pagination / Density Controls
-        if (projectsPaginationWrapper) {
-            if (totalMatching <= INITIAL_PROJECTS_LIMIT) {
-                projectsPaginationWrapper.hidden = true;
-            } else {
-                projectsPaginationWrapper.hidden = false;
-                if (projectsCountText) {
-                    projectsCountText.textContent = `Showing ${visibleCount} of ${totalMatching} projects`;
-                }
-                if (projectsShowMoreBtn && projectsShowLessBtn) {
-                    const hasMore = visibleCount < totalMatching;
-                    projectsShowMoreBtn.hidden = !hasMore;
-                    projectsShowLessBtn.hidden = hasMore;
-                }
-            }
-        }
     };
 
     const applyProjectFilter = (filterCriterion) => {
         activeFilterCriterion = filterCriterion || 'all';
-        currentProjectsLimit = INITIAL_PROJECTS_LIMIT; // Reset density limit on category change
         updateProjectsVisibility();
 
         const targetUrl = activeFilterCriterion === 'all'
@@ -304,24 +281,6 @@ document.addEventListener('DOMContentLoaded', () => {
             viewAllProjectsHeaderLink.href = targetUrl;
         }
     };
-
-    if (projectsShowMoreBtn) {
-        projectsShowMoreBtn.addEventListener('click', () => {
-            currentProjectsLimit += 4; // Reveal next batch smoothly
-            updateProjectsVisibility();
-        });
-    }
-
-    if (projectsShowLessBtn) {
-        projectsShowLessBtn.addEventListener('click', () => {
-            currentProjectsLimit = INITIAL_PROJECTS_LIMIT;
-            updateProjectsVisibility();
-            const projectsSection = document.getElementById('projects');
-            if (projectsSection) {
-                projectsSection.scrollIntoView({ behavior: 'smooth' });
-            }
-        });
-    }
 
     const bindFilterButtons = () => {
         const buttons = document.querySelectorAll('.filter-btn');
