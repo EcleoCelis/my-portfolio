@@ -430,12 +430,57 @@ h1, h2, h3, h4 {
 }
 
 .about__facts blockquote {
-    font-size: 20px;
+    font-size: 18px;
     font-style: italic;
     color: var(--clr-text-main);
     border-left: 3px solid var(--clr-accent);
-    padding-left: 24px;
-    margin-bottom: 48px;
+    padding-left: 20px;
+    margin-top: 12px;
+    line-height: 1.6;
+}
+
+.about__overview-card {
+    background: var(--clr-surface-card);
+    border: 1px solid var(--clr-border);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.about__fact-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.about__fact-list li {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--clr-border);
+}
+
+.about__fact-list li:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.about__fact-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    color: var(--clr-text-muted);
+}
+
+.about__fact-value {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--clr-text-main);
+    line-height: 1.4;
 }
 
 .about__counters {
@@ -482,11 +527,53 @@ h1, h2, h3, h4 {
     border-color: var(--clr-text-muted);
 }
 
+.skills__card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.skills__card-icon {
+    font-size: 22px;
+}
+
 .skills__category {
-    font-size: 14px;
-    margin-bottom: 24px;
+    font-size: 15px;
+    margin-bottom: 0;
     font-family: var(--font-heading);
     font-weight: 600;
+    color: var(--clr-text-main);
+}
+
+.skills__category-desc {
+    font-size: 13px;
+    color: var(--clr-text-muted);
+    margin-bottom: 18px;
+    line-height: 1.5;
+}
+
+.skills__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.skills__pill {
+    display: inline-block;
+    padding: 6px 12px;
+    background: var(--clr-surface);
+    border: 1px solid var(--clr-border);
+    border-radius: var(--radius-sm);
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--clr-text-main);
+    transition: var(--transition-fast);
+}
+
+.skills__pill:hover {
+    border-color: var(--clr-primary);
+    transform: translateY(-1px);
 }
 
 .skills__item {
@@ -521,7 +608,7 @@ h1, h2, h3, h4 {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 32px;
-    margin-bottom: 13rem;
+    margin-bottom: 0;
 }
 
 .services__card {
