@@ -15,7 +15,7 @@
     --clr-surface-card: #ffffff;
     --clr-text-main: #0f172a;
     --clr-text-main2: #2563eb;
-    --clr-text-muted: #64748b;
+    --clr-text-muted: #475569;
     --clr-border: #e2e8f0;
     --clr-hover-bg: #1e293b;
     
@@ -103,7 +103,7 @@ body {
 }
 
 section {
-    padding: 12px 0;
+    padding: 88px 0;
 }
 
 .bg-light {
@@ -118,17 +118,19 @@ h1, h2, h3, h4 {
 }
 
 .section-title {
-    font-size: 36px;
-    margin-bottom: 64px;
+    font-size: clamp(26px, 3vw, 34px);
+    margin-bottom: 44px;
     position: relative;
     font-family: var(--font-heading);
     font-weight: 700;
+    line-height: 1.2;
 }
 
 .paragraph {
-    font-size: 14px;
+    font-size: 15.5px;
+    line-height: 1.7;
     color: var(--clr-text-muted);
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     max-width: 65ch;
 }
 
@@ -304,7 +306,8 @@ h1, h2, h3, h4 {
    ========================================================================== */
 .hero {
     position: relative;
-    min-height: 100vh;
+    min-height: 92vh;
+    padding: 104px 0 72px;
     display: flex;
     align-items: center;
 }
@@ -980,6 +983,7 @@ h1, h2, h3, h4 {
     display: inline-flex;
     align-items: center;
     gap: 4px;
+    font-family: inherit;
     font-size: 11.5px;
     font-weight: 500;
     color: var(--clr-text-muted);
@@ -988,6 +992,7 @@ h1, h2, h3, h4 {
     border-radius: 6px;
     border: 1px solid var(--clr-border);
     background-color: var(--clr-surface);
+    cursor: pointer;
     transition: all 0.15s ease;
 }
 
@@ -1238,6 +1243,17 @@ h1, h2, h3, h4 {
     opacity: 0.75;
 }
 
+.cert-card__status {
+    display: inline-block;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--clr-text-muted);
+    padding: 4px 10px;
+    background: var(--clr-surface);
+    border: 1px solid var(--clr-border);
+    border-radius: var(--radius-sm);
+}
+
 /* ==========================================================================
    TESTIMONIAL CAROUSEL ENGINE
    ========================================================================== */
@@ -1357,10 +1373,35 @@ h1, h2, h3, h4 {
 
 .contact__socials {
     display: flex;
-    gap: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
-.contact__socials a,
+.contact__social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 8px 16px;
+    border: 1px solid var(--clr-border);
+    background-color: var(--clr-surface-card);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: var(--clr-text-main);
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.contact__social-link:hover {
+    border-color: var(--clr-accent);
+    color: var(--clr-accent);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+}
+
 .contact__social-badge {
     width: 40px;
     height: 40px;
@@ -1369,22 +1410,11 @@ h1, h2, h3, h4 {
     align-items: center;
     justify-content: center;
     border-radius: var(--radius-sm);
-    text-decoration: none;
-    color: var(--clr-text-main);
+    color: var(--clr-text-muted);
     font-size: 13px;
     font-weight: 600;
-    transition: var(--transition-smooth);
-}
-
-.contact__social-badge {
-    color: var(--clr-text-muted);
     opacity: 0.65;
     cursor: not-allowed;
-}
-
-.contact__socials a:hover {
-    border-color: var(--clr-text-main);
-    background-color: var(--clr-surface);
 }
 
 /* Form Fields */
@@ -1670,7 +1700,7 @@ h1, h2, h3, h4 {
     display: block;
     cursor: zoom-in;
     transition: transform 0.25s ease;
-    background: #09090b;
+    background: var(--clr-surface);
 }
 
 .modal-card__img:hover {
@@ -1753,14 +1783,15 @@ h1, h2, h3, h4 {
 }
 
 .image-lightbox__close {
-    position: absolute;
-    top: -46px;
-    right: 0;
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.25);
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2010;
+    background: rgba(18, 18, 20, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     color: #ffffff;
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     font-size: 18px;
     display: flex;
@@ -1768,6 +1799,7 @@ h1, h2, h3, h4 {
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s ease;
+    backdrop-filter: blur(8px);
 }
 
 .image-lightbox__close:hover {
@@ -1915,8 +1947,10 @@ h1, h2, h3, h4 {
 }
 
 @media (max-width: 768px) {
-    section { padding: 80px 0; }
-    .section-title { font-size: 28px; margin-bottom: 40px; }
+    section { padding: 64px 0; }
+    .hero { padding: 96px 0 56px; min-height: auto; }
+    .section-title { font-size: 26px; margin-bottom: 32px; }
+    .modal-card { padding: 20px; }
     .form__row { grid-template-columns: 1fr; gap: 0; }
     .hero__container { grid-template-columns: 1fr; gap: 40px; text-align: center; justify-content: center; }
     .hero__desc { margin-inline: auto; }
@@ -3343,9 +3377,23 @@ h1, h2, h3, h4 {
     color: var(--clr-text-main);
 }
 
+.archive-navbar__actions {
+    gap: 12px;
+}
+
+.archive-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.archive-main-section {
+    padding-top: 36px;
+}
+
 .archive__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
     gap: 28px;
     margin-bottom: 60px;
 }
@@ -3353,5 +3401,18 @@ h1, h2, h3, h4 {
 @media (max-width: 640px) {
     .archive__grid {
         grid-template-columns: 1fr;
+    }
+
+    .archive-navbar__actions {
+        gap: 8px;
+    }
+
+    .archive-contact-btn {
+        display: none;
+    }
+
+    .archive-back-btn {
+        padding: 6px 12px;
+        font-size: 12.5px;
     }
 }

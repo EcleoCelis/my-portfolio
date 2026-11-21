@@ -130,18 +130,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Dynamic Highlighting of Links via Active Viewport Location
+        const docHeight = document.documentElement ? document.documentElement.scrollHeight : 0;
+        const atBottom = docHeight > 0 && (window.innerHeight + scrollY >= docHeight - 24);
+        let activeId = null;
+
+        if (atBottom && sections.length > 0) {
+            activeId = sections[sections.length - 1].getAttribute('id');
+        } else {
+            sections.forEach(current => {
+                const sectionHeight = current.offsetHeight;
+                const sectionTop = current.offsetTop - 100;
+                if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
+                    activeId = current.getAttribute('id');
+                }
+            });
+        }
+
         sections.forEach(current => {
-            const sectionHeight = current.offsetHeight;
-            const sectionTop = current.offsetTop - 100;
             const sectionId = current.getAttribute('id');
             const targetLink = document.querySelector(`.navbar__link[href="#${sectionId}"]`);
-
             if (targetLink) {
-                if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
-                    targetLink.classList.add('active-link');
-                } else {
-                    targetLink.classList.remove('active-link');
-                }
+                targetLink.classList.toggle('active-link', sectionId === activeId);
             }
         });
         isScrollTicking = false;
@@ -164,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
        TYPING SIMULATION STRINGS ENGINE
        ========================================================================== */
     const typingText = document.getElementById('typing-text');
-    const phrases = ["Aspiring Developer.", "UI/UX System Designer.", "Graphics Designer."];
+    const phrases = ["IT Support & Systems Aspirant.", "Web & Application Developer.", "Graphic & UI Designer."];
     let phraseIdx = 0;
     let letterIdx = 0;
     let isDeleting = false;
@@ -703,7 +712,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 allBtn.className = 'filter-btn' + (activeFilter === 'all' ? ' active' : '');
                 allBtn.setAttribute('data-filter', 'all');
                 allBtn.setAttribute('aria-pressed', (activeFilter === 'all').toString());
-                allBtn.textContent = 'All Ecosystems';
+                allBtn.textContent = 'All Projects';
                 filtersContainer.appendChild(allBtn);
 
                 categoryMap.forEach((name, slug) => {
@@ -719,6 +728,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 bindFilterButtons();
             }
 
+            const escapeHtml = (str) => String(str == null ? '' : str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+
             data.projects.forEach(p => {
                 const slug = p.slug || ('proj-' + p.id);
                 const isDesign = p.project_type === 'design';
@@ -730,12 +746,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     project_type: p.project_type || 'system',
                     role: p.role_details || p.role_contributions || '',
                     highlights: Array.isArray(p.highlights) && p.highlights.length ? p.highlights : [
-                        isDesign ? 'Created high-fidelity UI components and interactive user flows.' : 'Engineered core responsive interface and component architecture.',
-                        isDesign ? 'Conducted design iterations and usability testing.' : 'Optimized relational data access and operational workflows.'
+                        isDesign ? 'Created visual layout, typography hierarchy, and print/digital-ready assets.' : 'Engineered core responsive interface and component architecture.',
+                        isDesign ? 'Refined visual balance and branding clarity for the target audience.' : 'Optimized relational data access and operational workflows.'
                     ],
                     tech: Array.isArray(p.tech_stack) ? p.tech_stack : [],
                     status: p.status_note || (isDesign
-                        ? (p.live_url ? ('Interactive prototype available at ' + p.live_url + '.') : 'Design presentation and assets available upon request.')
+                        ? (p.live_url ? ('Interactive prototype available at ' + p.live_url + '.') : 'High-resolution design preview available above; source files available upon request.')
                         : (p.repo_url ? ('Source code is publicly available at ' + p.repo_url + '.') : 'Pending public release.'))
                 };
             });
@@ -747,6 +763,12 @@ document.addEventListener('DOMContentLoaded', () => {
             grid.innerHTML = '';
             data.projects.forEach(p => {
                 const slug = p.slug || ('proj-' + p.id);
+                const safeSlug = escapeHtml(slug);
+                const safeTitle = escapeHtml(p.title);
+                const safeDesc = escapeHtml(p.description || '');
+                const safeTag = escapeHtml(p.tag || (p.project_type === 'design' ? 'Design' : 'Featured'));
+                const safeLiveUrl = p.live_url ? escapeHtml(p.live_url) : '';
+                const safeRepoUrl = p.repo_url ? escapeHtml(p.repo_url) : '';
                 const isDesign = p.project_type === 'design';
                 const card = document.createElement('div');
                 card.className = 'project-card scroll-reveal revealed';
@@ -754,37 +776,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 card.setAttribute('data-project-id', slug);
 
                 const imageHtml = p.image_data
-                    ? '<div class="project-card__image-clickable" role="button" tabindex="0" aria-label="View full image for ' + p.title + '">' +
-                      '<img src="' + p.image_data + '" alt="' + p.title + ' Screenshot" class="project-card__img" loading="lazy">' +
+                    ? '<div class="project-card__image-clickable" role="button" tabindex="0" aria-label="View full image for ' + safeTitle + '">' +
+                      '<img src="' + escapeHtml(p.image_data) + '" alt="' + safeTitle + ' Preview" class="project-card__img" loading="lazy">' +
                       '<span class="project-card__zoom-badge" aria-hidden="true">' +
                       '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>' +
                       '<span>View Image</span>' +
                       '</span>' +
                       '</div>'
-                    : '<div class="project-card__placeholder"><span>' + p.title + '</span></div>';
+                    : '<div class="project-card__placeholder"><span>' + safeTitle + '</span></div>';
 
                 const techHtml = (Array.isArray(p.tech_stack) ? p.tech_stack : [])
-                    .map(t => '<span>' + t + '</span>')
+                    .map(t => '<span>' + escapeHtml(t) + '</span>')
                     .join('');
 
                 let extLinksHtml = '';
                 let statusPillHtml = '';
 
                 if (isDesign) {
-                    if (p.live_url) {
-                        extLinksHtml += '<a href="' + p.live_url + '" target="_blank" rel="noopener noreferrer" class="project-card__ext-link" aria-label="View prototype for ' + p.title + '"><span>Prototype</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>';
+                    if (safeLiveUrl) {
+                        extLinksHtml += '<a href="' + safeLiveUrl + '" target="_blank" rel="noopener noreferrer" class="project-card__ext-link" aria-label="View prototype for ' + safeTitle + '"><span>Prototype</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>';
+                    } else if (p.image_data) {
+                        extLinksHtml = '<button type="button" class="project-card__ext-link project-card__preview-btn" aria-label="Open full-screen preview for ' + safeTitle + '"><span>Full Preview</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg></button>';
                     } else {
                         extLinksHtml = '<span class="project-card__dev-badge project-card__dev-badge--design" title="Interactive prototype in progress"><span class="project-card__dev-dot"></span>Design in Progress</span>';
                         statusPillHtml = '<span class="project-card__status-pill project-card__status-pill--design">Design in Progress</span>';
                     }
                 } else {
-                    if (p.live_url) {
-                        extLinksHtml += '<a href="' + p.live_url + '" target="_blank" rel="noopener noreferrer" class="project-card__ext-link" aria-label="Visit live demo for ' + p.title + '"><span>Demo</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>';
+                    if (safeLiveUrl) {
+                        extLinksHtml += '<a href="' + safeLiveUrl + '" target="_blank" rel="noopener noreferrer" class="project-card__ext-link" aria-label="Visit live demo for ' + safeTitle + '"><span>Demo</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>';
                     }
-                    if (p.repo_url) {
-                        extLinksHtml += '<a href="' + p.repo_url + '" target="_blank" rel="noopener noreferrer" class="project-card__ext-link" aria-label="View repository for ' + p.title + '"><span>GitHub</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a>';
+                    if (safeRepoUrl) {
+                        extLinksHtml += '<a href="' + safeRepoUrl + '" target="_blank" rel="noopener noreferrer" class="project-card__ext-link" aria-label="View repository for ' + safeTitle + '"><span>GitHub</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a>';
                     }
-                    if (!p.live_url && !p.repo_url) {
+                    if (!safeLiveUrl && !safeRepoUrl) {
                         extLinksHtml = '<span class="project-card__dev-badge" title="Source repository and live deployment in active development"><span class="project-card__dev-dot"></span>In-development</span>';
                         statusPillHtml = '<span class="project-card__status-pill project-card__status-pill--dev">In-development</span>';
                     }
@@ -800,17 +824,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     '</div>',
                     '<div class="project-card__content">',
                     '<div class="project-card__header-meta">',
-                    '<span class="project-card__tag">' + (p.tag || (isDesign ? 'Design' : 'Featured')) + '</span>',
+                    '<span class="project-card__tag">' + safeTag + '</span>',
                     typePillHtml,
                     statusPillHtml,
                     '</div>',
-                    '<h3 class="project-card__title">' + p.title + '</h3>',
-                    '<p class="project-card__desc">' + (p.description || '') + '</p>',
+                    '<h3 class="project-card__title">' + safeTitle + '</h3>',
+                    '<p class="project-card__desc">' + safeDesc + '</p>',
                     '<div class="project-card__tech">',
                     techHtml,
                     '</div>',
                     '<div class="project-card__links">',
-                    '<button type="button" class="project-card__case-btn project-case-study-btn" data-project-modal="' + slug + '" aria-haspopup="dialog">Case Study</button>',
+                    '<button type="button" class="project-card__case-btn project-case-study-btn" data-project-modal="' + safeSlug + '" aria-haspopup="dialog">Case Study</button>',
                     '<div class="project-card__ext-links">' + extLinksHtml + '</div>',
                     '</div>',
                     '</div>'
@@ -820,6 +844,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (caseBtn) {
                     caseBtn.addEventListener('click', () => {
                         openProjectModal(slug, caseBtn);
+                    });
+                }
+
+                const previewBtn = card.querySelector('.project-card__preview-btn');
+                if (previewBtn && p.image_data) {
+                    previewBtn.addEventListener('click', () => {
+                        openImageLightbox(p.image_data, p.title, p.tag || 'Design Showcase');
                     });
                 }
 
@@ -1021,7 +1052,7 @@ document.addEventListener('DOMContentLoaded', () => {
             isSubmitting = true;
             if (submitBtn) {
                 submitBtn.disabled = true;
-                submitBtn.textContent = 'Submitting Inquiry...';
+                submitBtn.textContent = 'Sending Message...';
             }
 
             try {
@@ -1071,7 +1102,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 isSubmitting = false;
                 if (submitBtn) {
                     submitBtn.disabled = false;
-                    submitBtn.textContent = 'Transmit Communication';
+                    submitBtn.textContent = 'Send Message';
                 }
             }
         });
