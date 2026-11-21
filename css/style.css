@@ -1134,12 +1134,45 @@ h1, h2, h3, h4 {
 
 .timeline__role {
     font-size: 20px;
+    margin-bottom: 6px;
+    line-height: 1.35;
 }
 
 .timeline__company {
-    font-size: 15px;
+    font-size: 14.5px;
+    font-style: italic;
+    font-weight: 400;
     color: var(--clr-text-muted);
+    opacity: 0.92;
     margin-bottom: 16px;
+    line-height: 1.5;
+}
+
+.timeline__highlights {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.timeline__highlights li {
+    position: relative;
+    padding-left: 18px;
+    font-size: 14.5px;
+    color: var(--clr-text-muted);
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+.timeline__highlights li:last-child {
+    margin-bottom: 0;
+}
+
+.timeline__highlights li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--clr-accent);
+    font-weight: 700;
 }
 
 .timeline__desc {
