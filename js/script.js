@@ -60,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         navbarMenu.classList.remove('open');
         hamburger.classList.remove('open');
         hamburger.setAttribute('aria-expanded', 'false');
+        if (document.body && document.body.style) document.body.style.overflow = '';
     };
 
     const toggleMenu = () => {
@@ -67,6 +68,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const isOpen = navbarMenu.classList.toggle('open');
         hamburger.classList.toggle('open', isOpen);
         hamburger.setAttribute('aria-expanded', String(isOpen));
+        if (document.body && document.body.style) {
+            document.body.style.overflow = isOpen ? 'hidden' : '';
+        }
     };
 
     if (hamburger) {
@@ -95,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     window.addEventListener('resize', () => {
-        if (window.innerWidth > 768 && navbarMenu && navbarMenu.classList.contains('open')) {
+        if (window.innerWidth > 900 && navbarMenu && navbarMenu.classList.contains('open')) {
             closeMenu();
         }
     });
