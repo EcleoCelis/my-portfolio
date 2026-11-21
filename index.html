@@ -75,7 +75,7 @@
                     <div class="hero__actions">
                         <a href="#projects" class="btn btn--primary">View Projects</a>
                         <a href="#contact" class="btn btn--secondary">Contact Me</a>
-                        <a href="assets/docs/Celis-Jomarie-Resume.pdf" id="resumeDownloadLink" class="btn btn--secondary" data-resume-link download>Download Resume (PDF)</a>
+                        <a href="/api/resume" id="resumeDownloadLink" class="btn btn--secondary" data-resume-link download="Celis-Jomarie-Resume.pdf">Download Resume (PDF)</a>
                     </div>
                     <p class="hero__resume-status" id="resumeStatusNote" role="status" aria-live="polite" hidden></p>
                 </div>
@@ -425,7 +425,13 @@
 
     <footer class="footer">
         <div class="container footer__container">
-            <p class="footer__copy">&copy; 2026 Celis Jomarie. All rights reserved.</p>
+            <div class="footer__meta">
+                <p class="footer__copy">&copy; 2026 Celis Jomarie. All rights reserved.</p>
+                <p class="footer__privacy">
+                    Privacy-conscious anonymous visit analytics (no IP storage or fingerprinting).
+                    <button type="button" id="analyticsOptOutBtn" class="footer__privacy-btn" aria-pressed="false">Opt Out of Analytics</button>
+                </p>
+            </div>
             <ul class="footer__links">
                 <li><a href="#home">Home</a></li>
                 <li><a href="#about">About</a></li>
@@ -493,8 +499,48 @@
         </div>
     </div>
 
+    <!-- Optional Voluntary Identification Résumé Download Modal -->
+    <div class="modal-backdrop" id="resumeDownloadModal" role="dialog" aria-modal="true" aria-labelledby="resumeModalTitle" hidden>
+        <div class="modal-card modal-card--compact">
+            <div class="modal-card__header">
+                <div>
+                    <span class="project-card__tag">PDF Document</span>
+                    <h3 class="modal-card__title" id="resumeModalTitle">Download Résumé</h3>
+                </div>
+                <button type="button" class="modal-card__close" id="resumeModalClose" aria-label="Close résumé download dialog">✕</button>
+            </div>
+            <div class="modal-card__body">
+                <p class="modal-card__desc">You can download the PDF directly without entering any information, or optionally share your name and organization so I know who reviewed my résumé.</p>
+                <div class="resume-modal__direct-box">
+                    <button type="button" id="resumeDirectDownloadBtn" class="btn btn--primary btn--full">Download PDF Directly (Anonymous)</button>
+                </div>
+                <div class="resume-modal__divider"><span>or optionally introduce yourself</span></div>
+                <form id="resumeIdentifyForm" class="form" novalidate>
+                    <div class="form__group">
+                        <label for="resumeVisitorName" class="form__label">Your Name <span class="form__optional">(Optional)</span></label>
+                        <input type="text" id="resumeVisitorName" class="form__input" placeholder="e.g., Maria Santos" maxlength="120" autocomplete="name">
+                    </div>
+                    <div class="form__row">
+                        <div class="form__group">
+                            <label for="resumeVisitorCompany" class="form__label">Company / Org <span class="form__optional">(Optional)</span></label>
+                            <input type="text" id="resumeVisitorCompany" class="form__input" placeholder="Company or institution" maxlength="120" autocomplete="organization">
+                        </div>
+                        <div class="form__group">
+                            <label for="resumeVisitorEmail" class="form__label">Email <span class="form__optional">(Optional)</span></label>
+                            <input type="email" id="resumeVisitorEmail" class="form__input" placeholder="name@company.com" maxlength="254" autocomplete="email">
+                        </div>
+                    </div>
+                    <p class="form__privacy-note">Optional details are only visible to the portfolio owner in the private admin dashboard and can be deleted upon request.</p>
+                    <div class="form__error" id="resumeModalError" role="alert"></div>
+                    <button type="submit" id="resumeIdentifyDownloadBtn" class="btn btn--secondary btn--full">Share Optional Info &amp; Download PDF</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <button type="button" class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
 
+    <script src="js/analytics-tracker.js"></script>
     <script src="js/script.js"></script>
 </body>
 </html>

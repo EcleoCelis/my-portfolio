@@ -167,7 +167,13 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container footer__container">
-            <p class="footer__copy">&copy; <span id="currentYear">2026</span> Celis Jomarie. All rights reserved.</p>
+            <div class="footer__meta">
+                <p class="footer__copy">&copy; <span id="currentYear">2026</span> Celis Jomarie. All rights reserved.</p>
+                <p class="footer__privacy">
+                    Privacy-conscious anonymous visit analytics (no IP storage or fingerprinting).
+                    <button type="button" id="analyticsOptOutBtn" class="footer__privacy-btn" aria-pressed="false">Opt Out of Analytics</button>
+                </p>
+            </div>
             <ul class="footer__links">
                 <li><a href="index.html">Portfolio Home</a></li>
                 <li><a href="index.html#about">About</a></li>
@@ -177,6 +183,7 @@
         </div>
     </footer>
 
+    <script src="js/analytics-tracker.js"></script>
     <script src="js/projects-archive.js"></script>
 </body>
 </html>

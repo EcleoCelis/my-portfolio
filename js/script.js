@@ -656,8 +656,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
+            const resModal = document.getElementById('resumeDownloadModal');
             if (imageLightboxModal && !imageLightboxModal.hidden) {
                 closeImageLightbox();
+            } else if (resModal && !resModal.hidden) {
+                resModal.hidden = true;
+                if (document.body && document.body.style) document.body.style.overflow = '';
             } else if (projectModal && !projectModal.hidden) {
                 closeProjectModal();
             }
@@ -881,28 +885,146 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadDynamicProjects();
 
-    // Resume Download Verification & Honest Fallback
+    // Resume Download Verification, Optional Identification Modal & Honest Fallback
     const resumeLink = document.getElementById('resumeDownloadLink');
     const resumeStatusNote = document.getElementById('resumeStatusNote');
+    const resumeDownloadModal = document.getElementById('resumeDownloadModal');
+    const resumeModalClose = document.getElementById('resumeModalClose');
+    const resumeDirectDownloadBtn = document.getElementById('resumeDirectDownloadBtn');
+    const resumeIdentifyForm = document.getElementById('resumeIdentifyForm');
+    const resumeModalError = document.getElementById('resumeModalError');
+    let pendingResumeHref = '/api/resume';
+
+    const closeResumeModal = () => {
+        if (!resumeDownloadModal || resumeDownloadModal.hidden) return;
+        resumeDownloadModal.hidden = true;
+        if (document.body && document.body.style) document.body.style.overflow = '';
+        if (resumeLink && typeof resumeLink.focus === 'function') resumeLink.focus();
+    };
+
+    const buildTrackedResumeUrl = (baseHref, reqId) => {
+        const analyticsApi = window.PortfolioAnalytics;
+        if (!analyticsApi || analyticsApi.isOptedOut()) {
+            return baseHref;
+        }
+        const ctx = analyticsApi.getContext();
+        const sep = baseHref.includes('?') ? '&' : '?';
+        return `${baseHref}${sep}vid=${encodeURIComponent(ctx.visitorId)}&sid=${encodeURIComponent(ctx.sessionId)}&reqId=${encodeURIComponent(reqId || analyticsApi.generateId('req'))}`;
+    };
+
+    const triggerActualResumeDownload = (baseHref, reqId) => {
+        const targetUrl = buildTrackedResumeUrl(baseHref, reqId);
+        closeResumeModal();
+        window.location.href = targetUrl;
+    };
+
+    if (resumeModalClose) resumeModalClose.addEventListener('click', closeResumeModal);
+    if (resumeDownloadModal) {
+        resumeDownloadModal.addEventListener('click', (e) => {
+            if (e.target === resumeDownloadModal) closeResumeModal();
+        });
+    }
+    if (resumeDirectDownloadBtn) {
+        resumeDirectDownloadBtn.addEventListener('click', () => {
+            const analyticsApi = window.PortfolioAnalytics;
+            const reqId = analyticsApi ? analyticsApi.generateId('req') : '';
+            if (analyticsApi) {
+                analyticsApi.trackEvent('resume_requested', {
+                    eventId: reqId ? `req_${reqId}` : '',
+                    downloadResource: 'Celis-Jomarie-Resume.pdf'
+                });
+            }
+            triggerActualResumeDownload(pendingResumeHref, reqId);
+        });
+    }
+    if (resumeIdentifyForm) {
+        resumeIdentifyForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (resumeModalError) {
+                resumeModalError.textContent = '';
+                resumeModalError.classList.remove('visible');
+            }
+            const nameEl = document.getElementById('resumeVisitorName');
+            const companyEl = document.getElementById('resumeVisitorCompany');
+            const emailEl = document.getElementById('resumeVisitorEmail');
+            const nameVal = nameEl ? nameEl.value.trim() : '';
+            const companyVal = companyEl ? companyEl.value.trim() : '';
+            const emailVal = emailEl ? emailEl.value.trim() : '';
+
+            if (nameVal.length > 0 && nameVal.length < 2) {
+                if (resumeModalError) {
+                    resumeModalError.textContent = 'Please enter at least 2 characters for your name, or use Direct Download above.';
+                    resumeModalError.classList.add('visible');
+                }
+                return;
+            }
+            if (emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailVal)) {
+                if (resumeModalError) {
+                    resumeModalError.textContent = 'Please enter a valid email address or leave email blank.';
+                    resumeModalError.classList.add('visible');
+                }
+                return;
+            }
+
+            const analyticsApi = window.PortfolioAnalytics;
+            const reqId = analyticsApi ? analyticsApi.generateId('req') : '';
+            if (analyticsApi && nameVal.length >= 2) {
+                await analyticsApi.identifyVisitor({
+                    name: nameVal,
+                    company: companyVal,
+                    email: emailVal,
+                    source: 'resume_request'
+                });
+            }
+            if (analyticsApi) {
+                await analyticsApi.trackEvent('resume_requested', {
+                    eventId: reqId ? `req_${reqId}` : '',
+                    downloadResource: 'Celis-Jomarie-Resume.pdf'
+                });
+            }
+            resumeIdentifyForm.reset();
+            triggerActualResumeDownload(pendingResumeHref, reqId);
+        });
+    }
 
     if (resumeLink) {
         resumeLink.addEventListener('click', async (e) => {
             const href = resumeLink.getAttribute('href');
             if (!href) return;
 
-            // Check if the static resume PDF is present on the server before navigating
+            // Check if the resume PDF is present on the server before navigating
             if (typeof fetch === 'function' && window.location && /^https?:$/i.test(window.location.protocol)) {
                 e.preventDefault();
+                pendingResumeHref = href;
                 try {
                     const res = await fetch(href, { method: 'HEAD' });
                     const contentType = (res.headers && res.headers.get && res.headers.get('content-type')) || '';
                     if (res.ok && contentType.includes('pdf')) {
                         if (resumeStatusNote) resumeStatusNote.hidden = true;
-                        window.location.href = href;
+                        if (resumeDownloadModal) {
+                            resumeDownloadModal.hidden = false;
+                            if (document.body && document.body.style) document.body.style.overflow = 'hidden';
+                            if (resumeDirectDownloadBtn) resumeDirectDownloadBtn.focus();
+                        } else {
+                            triggerActualResumeDownload(href, '');
+                        }
                         return;
                     }
                 } catch (err) {
                     // Fall through to honest missing-asset guidance
+                }
+
+                // Record demand (requested + server-verified unavailable) without breaking fallback UX
+                const analyticsApi = window.PortfolioAnalytics;
+                if (analyticsApi && !analyticsApi.isOptedOut()) {
+                    const reqId = analyticsApi.generateId('req');
+                    analyticsApi.trackEvent('resume_requested', {
+                        eventId: `req_${reqId}`,
+                        downloadResource: 'Celis-Jomarie-Resume.pdf'
+                    });
+                    if (href.includes('/api/resume')) {
+                        fetch(buildTrackedResumeUrl(href, reqId), { method: 'GET' }).catch(() => {});
+                    }
                 }
 
                 if (resumeStatusNote) {
@@ -1035,6 +1157,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const inquiryTypeEl = document.getElementById('inquiryType');
             const honeypotEl = document.getElementById('website');
 
+            const analyticsCtx = (window.PortfolioAnalytics && !window.PortfolioAnalytics.isOptedOut())
+                ? window.PortfolioAnalytics.getContext()
+                : null;
+
             const payload = {
                 name: document.getElementById('name').value.trim(),
                 email: document.getElementById('email').value.trim(),
@@ -1042,7 +1168,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 inquiryType: inquiryTypeEl ? inquiryTypeEl.value : 'general',
                 subject: document.getElementById('subject').value.trim(),
                 message: document.getElementById('message').value.trim(),
-                website: honeypotEl ? honeypotEl.value : ''
+                website: honeypotEl ? honeypotEl.value : '',
+                visitorId: analyticsCtx ? analyticsCtx.visitorId : '',
+                sessionId: analyticsCtx ? analyticsCtx.sessionId : ''
             };
 
             const mailtoHref = buildMailtoHref(recipient, payload);

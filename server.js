@@ -7,6 +7,8 @@ const contactHandler = require('./api/contact');
 const projectsHandler = require('./api/projects');
 const adminHandler = require('./api/admin');
 const healthHandler = require('./api/health');
+const analyticsHandler = require('./api/analytics');
+const resumeHandler = require('./api/resume');
 
 // Dynamically sync local .env file changes without requiring manual server restart
 let lastEnvMtime = 0;
@@ -144,6 +146,30 @@ function createPortfolioServer() {
             return;
         }
 
+        // Route 4B: Visitor Analytics Endpoint (Public POST, Admin-only GET/DELETE)
+        if (pathname === '/api/analytics') {
+            try {
+                await analyticsHandler(req, res);
+            } catch (err) {
+                res.statusCode = 500;
+                res.setHeader('Content-Type', 'application/json; charset=utf-8');
+                res.end(JSON.stringify({ ok: false, code: 'INTERNAL_ERROR', message: 'Analytics handler error.' }));
+            }
+            return;
+        }
+
+        // Route 4C: Server-Side Résumé Delivery & Tracking Handler
+        if (pathname === '/api/resume') {
+            try {
+                await resumeHandler(req, res);
+            } catch (err) {
+                res.statusCode = 500;
+                res.setHeader('Content-Type', 'application/json; charset=utf-8');
+                res.end(JSON.stringify({ ok: false, code: 'INTERNAL_ERROR', message: 'Resume delivery handler error.' }));
+            }
+            return;
+        }
+
         // Route 5: Static Asset Delivery (GET / HEAD only)
         if (req.method !== 'GET' && req.method !== 'HEAD') {
             res.statusCode = 405;
@@ -153,7 +179,7 @@ function createPortfolioServer() {
         }
 
         let relPath = pathname === '/' ? 'index.html' : pathname.replace(/^\/+/, '');
-        if (relPath === 'admin') {
+        if (relPath === 'admin' || relPath === 'admin/visitors') {
             relPath = 'admin.html';
         }
         if (relPath === 'projects') {

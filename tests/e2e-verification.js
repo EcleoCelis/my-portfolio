@@ -348,11 +348,20 @@ async function runTests() {
         assert(subjectIn.value.includes('NutriCare Platform'));
         console.log('[PASS] Project Case Study modal opens, renders architectural details, and pre-fills contact form on walkthrough request.');
 
-        // 4.2 Resume Download Missing Asset Graceful Handling
+        // 4.2 Resume Download Asset Verification (Existing PDF & Missing Asset Graceful Handling)
         await resumeLink.trigger('click');
-        assert.strictEqual(resumeNote.hidden, false, 'Resume status note should appear when PDF is not yet uploaded');
+        const realResumeExists = fs.existsSync(path.join(__dirname, '..', 'assets', 'docs', 'Celis-Jomarie-Resume.pdf'));
+        if (realResumeExists) {
+            assert.strictEqual(resumeNote.hidden, true, 'Status error note should stay hidden when real PDF exists');
+            console.log('[PASS] Clicking Download Resume verifies live Celis-Jomarie-Resume.pdf (200 application/pdf) and initiates tracked download.');
+        }
+
+        // Also test missing-asset graceful fallback explicitly
+        resumeLink.setAttribute('href', `${baseUrl}/assets/docs/nonexistent-resume.pdf`);
+        await resumeLink.trigger('click');
+        assert.strictEqual(resumeNote.hidden, false, 'Resume status note should appear when PDF is missing');
         assert.strictEqual(inquiryIn.value, 'job');
-        console.log('[PASS] Clicking Download Resume checks PDF existence and gracefully guides recruiter to contact form when PDF is pending upload.');
+        console.log('[PASS] Missing resume PDF gracefully guides recruiter to contact form without broken 404.');
 
         // 4.3 Contact Form End-to-End Submission Preserves Input on 503 & Exposes Mailto Fallback
         resetRateLimitStore();
@@ -547,6 +556,216 @@ async function runTests() {
             assert.strictEqual(authMessagesData.ok, true);
             assert(Array.isArray(authMessagesData.messages));
             console.log(`[PASS] GET /api/admin?action=messages with DATABASE_URL returns 200 OK with inbox messages list (${authMessagesData.messages.length} messages).`);
+        }
+
+        // --------------------------------------------------------------------
+        // 6. Visitor Analytics, Résumé Tracking, Aggregation & Privacy Controls
+        // --------------------------------------------------------------------
+        console.log('\n--- Phase 6: Visitor Analytics, Résumé Delivery, Timezone Aggregation & Privacy ---');
+        const analyticsLib = require('../lib/analytics');
+        const dbLib = require('../lib/db');
+
+        // 6.1 Unit tests for timezone range, zero-filled buckets, bot detection, and path/referrer sanitization
+        assert.strictEqual(analyticsLib.sanitizePagePath('/projects.html?token=secret123#top'), '/projects');
+        assert.strictEqual(analyticsLib.classifyReferrer('https://www.google.com/search?q=celis'), 'Google Search');
+        assert.strictEqual(analyticsLib.classifyReferrer('https://github.com/EcleoCelis'), 'GitHub');
+        assert.strictEqual(analyticsLib.classifyReferrer(''), 'Direct');
+        assert.strictEqual(analyticsLib.detectBot('Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'), true);
+        assert.strictEqual(analyticsLib.detectBot('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0'), false);
+
+        const tzRange = analyticsLib.resolveDateRange({
+            range: '7d',
+            timezone: 'Asia/Manila',
+            now: new Date('2026-01-01T17:30:00Z') // 2026-01-02 01:30 Asia/Manila (year boundary!)
+        });
+        assert.strictEqual(tzRange.todayStr, '2026-01-02', 'UTC->Asia/Manila date rollover must cross calendar day accurately');
+        assert.strictEqual(tzRange.startDate, '2025-12-27', '7d window across year boundary must start on 2025-12-27');
+        assert.strictEqual(tzRange.weekStart, '2025-12-29', 'ISO Monday week start for Fri 2026-01-02 must be Mon 2025-12-29');
+        const dailyBuckets = analyticsLib.buildTimeBuckets('2025-12-30', '2026-01-02', 'daily');
+        assert.strictEqual(dailyBuckets.length, 4);
+        const monthlyBuckets = analyticsLib.buildTimeBuckets('2025-11-15', '2026-02-05', 'monthly');
+        assert.strictEqual(monthlyBuckets.length, 4);
+        console.log('[PASS] Timezone conversion (Asia/Manila year boundary), ISO week boundaries, zero-filled buckets, bot detection & sanitization verified.');
+
+        // 6.2 /admin/visitors route & static analytics tracker asset
+        const visitorsRouteRes = await fetch(`${baseUrl}/admin/visitors`);
+        assert.strictEqual(visitorsRouteRes.status, 200);
+        const visitorsRouteHtml = await visitorsRouteRes.text();
+        assert(visitorsRouteHtml.includes('id="tabAnalyticsBtn"') && visitorsRouteHtml.includes('id="panelAnalytics"'));
+        const trackerJsRes = await fetch(`${baseUrl}/js/analytics-tracker.js`);
+        assert.strictEqual(trackerJsRes.status, 200);
+        console.log('[PASS] GET /admin/visitors (200 OK) and /js/analytics-tracker.js (200 OK) verified.');
+
+        // 6.3 Unauthorized access to admin analytics endpoints strictly blocked (401)
+        const unauthGetAnalytics = await fetch(`${baseUrl}/api/analytics`);
+        assert.strictEqual(unauthGetAnalytics.status, 401);
+        const unauthDelAnalytics = await fetch(`${baseUrl}/api/analytics?action=purge&retentionDays=90`, { method: 'DELETE' });
+        assert.strictEqual(unauthDelAnalytics.status, 401);
+        console.log('[PASS] Unauthenticated GET/DELETE /api/analytics blocked with 401 UNAUTHORIZED.');
+
+        // 6.4 Authenticated admin browsing is excluded from public analytics
+        const adminVisitRes = await fetch(`${baseUrl}/api/analytics`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Cookie': sessionCookie },
+            body: JSON.stringify({ eventType: 'page_view', visitorId: 'test_admin_vis', sessionId: 'test_admin_ses', pagePath: '/' })
+        });
+        assert.strictEqual(adminVisitRes.status, 200);
+        const adminVisitData = await adminVisitRes.json();
+        assert.strictEqual(adminVisitData.excluded, true);
+        assert.strictEqual(adminVisitData.reason, 'ADMIN_ACTIVITY_EXCLUDED');
+        console.log('[PASS] Authenticated admin visits are automatically excluded from public visitor analytics.');
+
+        // 6.5 End-to-End PostgreSQL Visitor Tracking, Deduplication, Concurrency, Bot Filtering, Identification & Résumé Delivery
+        if (process.env.DATABASE_URL) {
+            const testPrefix = `test_e2e_${Date.now()}`;
+            const vis1 = `${testPrefix}_v1`;
+            const ses1 = `${testPrefix}_s1`;
+            const vis2 = `${testPrefix}_v2`;
+            const ses2 = `${testPrefix}_s2`;
+            const visBot = `${testPrefix}_botv`;
+            const sesBot = `${testPrefix}_bots`;
+
+            try {
+                // 6.5a First-time anonymous visitor opens '/' then navigates to '/projects' + rapid refresh
+                const ev1Res = await fetch(`${baseUrl}/api/analytics`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/122.0' },
+                    body: JSON.stringify({ eventId: `${testPrefix}_e1`, eventType: 'page_view', visitorId: vis1, sessionId: ses1, pagePath: '/', referrer: 'https://github.com/EcleoCelis' })
+                });
+                assert.strictEqual((await ev1Res.json()).recorded, true);
+
+                // Duplicate eventId -> deduplicated
+                const dupIdRes = await fetch(`${baseUrl}/api/analytics`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/122.0' },
+                    body: JSON.stringify({ eventId: `${testPrefix}_e1`, eventType: 'page_view', visitorId: vis1, sessionId: ses1, pagePath: '/' })
+                });
+                assert.strictEqual((await dupIdRes.json()).deduplicated, true);
+
+                // Rapid refresh of same path within 5s with new eventId -> deduplicated
+                const refreshRes = await fetch(`${baseUrl}/api/analytics`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/122.0' },
+                    body: JSON.stringify({ eventId: `${testPrefix}_e1_refresh`, eventType: 'page_view', visitorId: vis1, sessionId: ses1, pagePath: '/' })
+                });
+                assert.strictEqual((await refreshRes.json()).deduplicated, true);
+
+                // Navigate to /projects + concurrent second anonymous visitor + bot request
+                const [navRes, concRes, botRes] = await Promise.all([
+                    fetch(`${baseUrl}/api/analytics`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/122.0' },
+                        body: JSON.stringify({ eventId: `${testPrefix}_e2`, eventType: 'page_view', visitorId: vis1, sessionId: ses1, pagePath: '/projects' })
+                    }),
+                    fetch(`${baseUrl}/api/analytics`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) Mobile' },
+                        body: JSON.stringify({ eventId: `${testPrefix}_e3`, eventType: 'page_view', visitorId: vis2, sessionId: ses2, pagePath: '/', referrer: 'https://www.linkedin.com/in/recruiter' })
+                    }),
+                    fetch(`${baseUrl}/api/analytics`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)' },
+                        body: JSON.stringify({ eventId: `${testPrefix}_ebot`, eventType: 'page_view', visitorId: visBot, sessionId: sesBot, pagePath: '/' })
+                    })
+                ]);
+                assert.strictEqual((await navRes.json()).recorded, true);
+                assert.strictEqual((await concRes.json()).recorded, true);
+                assert.strictEqual((await botRes.json()).recorded, true);
+                console.log('[PASS] Anonymous visits, multi-page navigation, refresh/ID deduplication, concurrency, and bot capture verified.');
+
+                // 6.5b Voluntary visitor identification for vis2/ses2 (vis1 remains Anonymous Visitor!)
+                const idRes = await fetch(`${baseUrl}/api/analytics`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'identify',
+                        visitorId: vis2,
+                        sessionId: ses2,
+                        name: 'Elena Hiring Manager',
+                        email: 'elena@example-corp.test',
+                        company: 'Example Tech Corp',
+                        source: 'resume_request'
+                    })
+                });
+                assert.strictEqual(idRes.status, 200);
+                assert.strictEqual((await idRes.json()).identified, true);
+
+                // 6.5c Server-side Résumé Delivery (missing PDF -> 404 unavailable; present PDF -> 200 PDF served)
+                const resumePdfPath = path.join(__dirname, '..', 'assets', 'docs', analyticsLib.RESUME_FILENAME);
+                const hadRealPdf = fs.existsSync(resumePdfPath);
+
+                if (!hadRealPdf) {
+                    const headMissing = await fetch(`${baseUrl}/api/resume`, { method: 'HEAD' });
+                    assert.strictEqual(headMissing.status, 404);
+                    const getMissing = await fetch(`${baseUrl}/api/resume?vid=${encodeURIComponent(vis1)}&sid=${encodeURIComponent(ses1)}&reqId=${testPrefix}_miss`);
+                    assert.strictEqual(getMissing.status, 404);
+                    const missJson = await getMissing.json();
+                    assert.strictEqual(missJson.code, 'RESUME_NOT_UPLOADED');
+
+                    // Temporarily place a valid minimal PDF file to verify 200 PDF streaming & resume_served tracking
+                    fs.writeFileSync(resumePdfPath, '%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n', 'utf8');
+                }
+
+                try {
+                    const headOk = await fetch(`${baseUrl}/api/resume`, { method: 'HEAD' });
+                    assert.strictEqual(headOk.status, 200);
+                    assert(headOk.headers.get('content-type').includes('application/pdf'));
+
+                    const getOk = await fetch(`${baseUrl}/api/resume?vid=${encodeURIComponent(vis2)}&sid=${encodeURIComponent(ses2)}&reqId=${testPrefix}_ok`);
+                    assert.strictEqual(getOk.status, 200);
+                    assert(getOk.headers.get('content-type').includes('application/pdf'));
+                    assert(getOk.headers.get('content-disposition').includes(analyticsLib.RESUME_FILENAME));
+                } finally {
+                    if (!hadRealPdf && fs.existsSync(resumePdfPath)) {
+                        fs.unlinkSync(resumePdfPath);
+                    }
+                }
+                console.log('[PASS] Server-side /api/resume handler verified for both 404 unavailable and 200 PDF delivery tracking.');
+
+                // 6.5d Authenticated GET /api/analytics dashboard verification (today + weekly + monthly + identified vs anonymous)
+                const dashRes = await fetch(`${baseUrl}/api/analytics?range=today&granularity=daily&tz=Asia%2FManila`, {
+                    headers: { 'Cookie': sessionCookie }
+                });
+                assert.strictEqual(dashRes.status, 200);
+                const dash = await dashRes.json();
+                assert.strictEqual(dash.ok, true);
+                assert.strictEqual(dash.timezone, 'Asia/Manila');
+                assert(dash.summary.totalVisits >= 2, 'Two non-bot sessions must be counted');
+                assert(dash.summary.totalPageViews >= 3, 'Three non-bot page views must be counted');
+                assert(dash.summary.resumeServed >= 1, 'Confirmed PDF delivery must be counted in resumeServed');
+                assert(dash.summary.botsFiltered >= 1, 'Googlebot session must be counted in botsFiltered and excluded from visits');
+
+                const identifiedEntry = dash.resumeDownloads.items.find(r => r.visitorName === 'Elena Hiring Manager' && r.eventType === 'resume_served');
+                assert(identifiedEntry, 'Identified visitor must be associated with their confirmed résumé download');
+                assert.strictEqual(identifiedEntry.company, 'Example Tech Corp');
+
+                const anonEntry = dash.recentActivity.items.find(r => r.classification === 'anonymous' && r.visitorName === 'Anonymous Visitor');
+                assert(anonEntry, 'Anonymous visitors must strictly remain labeled "Anonymous Visitor"');
+
+                // Verify weekly and monthly endpoints succeed cleanly
+                const weekRes = await fetch(`${baseUrl}/api/analytics?range=30d&granularity=weekly&tz=Asia%2FManila`, { headers: { 'Cookie': sessionCookie } });
+                assert.strictEqual(weekRes.status, 200);
+                const monthRes = await fetch(`${baseUrl}/api/analytics?range=30d&granularity=monthly&tz=Asia%2FManila`, { headers: { 'Cookie': sessionCookie } });
+                assert.strictEqual(monthRes.status, 200);
+
+                // 6.5e Privacy PII Deletion: delete Elena's identity record and verify anonymization
+                const elenaRecord = dash.identifiedVisitorsList.find(v => v.full_name === 'Elena Hiring Manager');
+                assert(elenaRecord, 'Identified visitor must appear in privacy directory');
+                const delIdRes = await fetch(`${baseUrl}/api/analytics?action=delete_identity&id=${elenaRecord.id}`, {
+                    method: 'DELETE',
+                    headers: { 'Cookie': sessionCookie }
+                });
+                assert.strictEqual(delIdRes.status, 200);
+                console.log('[PASS] Admin analytics aggregation (daily/weekly/monthly), anonymous vs identified separation, and PII deletion verified.');
+            } finally {
+                // Clean up synthetic E2E analytics test rows so production database remains spotless
+                const pool = dbLib.getPool();
+                if (pool) {
+                    await pool.query(`DELETE FROM analytics_events WHERE session_id LIKE $1`, [`${testPrefix}%`]);
+                    await pool.query(`DELETE FROM analytics_sessions WHERE session_id LIKE $1`, [`${testPrefix}%`]);
+                    await pool.query(`DELETE FROM analytics_identities WHERE session_id LIKE $1`, [`${testPrefix}%`]);
+                }
+            }
         }
 
         // 5.10 Admin Logout

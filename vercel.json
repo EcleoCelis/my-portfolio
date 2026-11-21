@@ -2,8 +2,15 @@
   "functions": {
     "server.js": {
       "includeFiles": "{index.html,projects.html,admin.html,css/**,js/**,assets/**}"
+    },
+    "api/resume.js": {
+      "includeFiles": "assets/docs/**"
     }
   },
+  "rewrites": [
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/admin/visitors", "destination": "/admin.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)",

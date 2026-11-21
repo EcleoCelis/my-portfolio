@@ -20,7 +20,7 @@
             } catch (e) {}
         })();
     </script>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="admin-body">
 
@@ -94,6 +94,10 @@
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                     <span>Hiring Inquiries</span>
                     <span class="admin-count-badge" id="unreadCountBadge">0</span>
+                </button>
+                <button type="button" class="admin-tab-btn" id="tabAnalyticsBtn" role="tab" aria-selected="false" aria-controls="panelAnalytics">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    <span>Visitors &amp; Analytics</span>
                 </button>
             </div>
 
@@ -312,9 +316,239 @@
                     <div id="adminMessagesList" class="admin-messages-list"></div>
                 </div>
             </section>
+
+            <!-- Panel 3: Visitors & Analytics -->
+            <section id="panelAnalytics" role="tabpanel" aria-labelledby="tabAnalyticsBtn" hidden>
+                <!-- A. Header & Date Range Controls -->
+                <div class="analytics-header">
+                    <div class="analytics-header__title-group">
+                        <h2 class="admin-subtitle">Visitors &amp; Analytics</h2>
+                        <p class="analytics-tz-note" id="analyticsTzNote">
+                            Reporting Timezone: <strong id="analyticsTzDisplay">Asia/Manila</strong> · Calendar Week: Monday–Sunday · Admin traffic excluded
+                        </p>
+                    </div>
+                    <div class="analytics-controls-bar">
+                        <div class="analytics-range-group" role="group" aria-label="Select date range">
+                            <button type="button" class="analytics-range-btn" data-range="today">Today</button>
+                            <button type="button" class="analytics-range-btn" data-range="7d">Last 7 Days</button>
+                            <button type="button" class="analytics-range-btn active" data-range="30d">Last 30 Days</button>
+                            <button type="button" class="analytics-range-btn" data-range="custom">Custom</button>
+                        </div>
+                        <select id="analyticsTzSelect" class="analytics-select" aria-label="Reporting timezone">
+                            <option value="Asia/Manila" selected>Asia/Manila (UTC+8)</option>
+                            <option value="UTC">UTC</option>
+                            <option value="Asia/Singapore">Asia/Singapore</option>
+                            <option value="America/New_York">America/New_York</option>
+                            <option value="America/Los_Angeles">America/Los_Angeles</option>
+                            <option value="Europe/London">Europe/London</option>
+                        </select>
+                        <button type="button" class="btn btn--sm btn--secondary admin-btn-refresh" id="refreshAnalyticsBtn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                            <span>Refresh</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Custom Date Range Bar -->
+                <div class="analytics-custom-range" id="analyticsCustomRangeBar" hidden>
+                    <label class="analytics-date-field">
+                        <span>From</span>
+                        <input type="date" id="analyticsStartDate" class="analytics-date-input">
+                    </label>
+                    <label class="analytics-date-field">
+                        <span>To</span>
+                        <input type="date" id="analyticsEndDate" class="analytics-date-input">
+                    </label>
+                    <button type="button" class="btn btn--sm btn--primary" id="applyCustomRangeBtn">Apply Range</button>
+                </div>
+
+                <!-- Error / Status Notice -->
+                <div class="form__success form__success--error" id="analyticsErrorBox" role="alert"></div>
+
+                <!-- B. Analytics Overview KPI Grid -->
+                <div class="analytics-kpi-grid" aria-label="Key portfolio metrics">
+                    <div class="analytics-kpi-card">
+                        <span class="analytics-kpi-label">Total Visits</span>
+                        <strong class="analytics-kpi-value" id="kpiTotalVisits">—</strong>
+                        <div class="analytics-kpi-sub" id="kpiVisitsBreakdown">Today: — · Week: — · Month: —</div>
+                    </div>
+                    <div class="analytics-kpi-card">
+                        <span class="analytics-kpi-label">Unique Visitors</span>
+                        <strong class="analytics-kpi-value" id="kpiUniqueVisitors">—</strong>
+                        <div class="analytics-kpi-sub" id="kpiIdentifiedSub">Identified: — · Browser-based count</div>
+                    </div>
+                    <div class="analytics-kpi-card">
+                        <span class="analytics-kpi-label">Page Views</span>
+                        <strong class="analytics-kpi-value" id="kpiPageViews">—</strong>
+                        <div class="analytics-kpi-sub" id="kpiPageViewsSub">Excludes rapid &lt;5s refreshes</div>
+                    </div>
+                    <div class="analytics-kpi-card">
+                        <span class="analytics-kpi-label">Résumé Downloads</span>
+                        <strong class="analytics-kpi-value" id="kpiResumeServed">—</strong>
+                        <div class="analytics-kpi-sub" id="kpiResumeBreakdown">Requested: — · Today: — · Month: —</div>
+                    </div>
+                </div>
+
+                <!-- Measurement Disclosure & Operational Status Strip -->
+                <div class="analytics-meta-strip" id="analyticsMetaStrip">
+                    <span id="analyticsResumeFileBadge" class="analytics-meta-badge">Résumé PDF: Checking...</span>
+                    <span id="analyticsBotsBadge" class="analytics-meta-badge">Automated bots filtered: 0</span>
+                    <span class="analytics-meta-note">Unique visitors reflect privacy-friendly pseudonymous browser IDs and may differ from exact distinct individuals when storage is cleared or blocked.</span>
+                </div>
+
+                <!-- C & D. Charts Section -->
+                <div class="analytics-charts-toolbar">
+                    <span class="analytics-charts-range-label" id="analyticsActiveRangeLabel">Showing selected range</span>
+                    <div class="analytics-granularity-group" role="group" aria-label="Chart aggregation interval">
+                        <button type="button" class="analytics-gran-btn active" data-granularity="daily">Daily</button>
+                        <button type="button" class="analytics-gran-btn" data-granularity="weekly">Weekly</button>
+                        <button type="button" class="analytics-gran-btn" data-granularity="monthly">Monthly</button>
+                    </div>
+                </div>
+
+                <div class="analytics-charts-grid">
+                    <!-- C. Visitor Traffic Chart -->
+                    <div class="admin-panel-card analytics-chart-card">
+                        <div class="analytics-chart-header">
+                            <div>
+                                <h3 class="analytics-card-title">Visitor Traffic</h3>
+                                <p class="analytics-card-subtitle">Qualifying visits vs. total page views over time</p>
+                            </div>
+                            <div class="analytics-legend" aria-hidden="true">
+                                <span class="analytics-legend-item"><i class="legend-dot legend-dot--visits"></i>Visits</span>
+                                <span class="analytics-legend-item"><i class="legend-dot legend-dot--views"></i>Page Views</span>
+                            </div>
+                        </div>
+                        <div class="analytics-chart-canvas" id="visitorTrafficChart" role="img" aria-label="Visitor traffic time-series chart"></div>
+                    </div>
+
+                    <!-- D. Résumé Download Trend -->
+                    <div class="admin-panel-card analytics-chart-card">
+                        <div class="analytics-chart-header">
+                            <div>
+                                <h3 class="analytics-card-title">Résumé Download Trend</h3>
+                                <p class="analytics-card-subtitle">Download requests vs. confirmed PDF file deliveries</p>
+                            </div>
+                            <div class="analytics-legend" aria-hidden="true">
+                                <span class="analytics-legend-item"><i class="legend-dot legend-dot--requested"></i>Requested</span>
+                                <span class="analytics-legend-item"><i class="legend-dot legend-dot--served"></i>File Served</span>
+                            </div>
+                        </div>
+                        <div class="analytics-chart-canvas" id="resumeTrendChart" role="img" aria-label="Résumé download trend chart"></div>
+                    </div>
+                </div>
+
+                <!-- E. Recent Visitor Activity Table -->
+                <div class="admin-panel-card analytics-table-card">
+                    <div class="analytics-table-header">
+                        <div>
+                            <h3 class="analytics-card-title">Recent Visitor Activity</h3>
+                            <p class="analytics-card-subtitle">Chronological log distinguishing anonymous visits from voluntarily identified visitors</p>
+                        </div>
+                        <div class="analytics-filter-pills" role="group" aria-label="Filter visitor activity">
+                            <button type="button" class="analytics-filter-pill active" data-filter="all">All</button>
+                            <button type="button" class="analytics-filter-pill" data-filter="identified">Identified</button>
+                            <button type="button" class="analytics-filter-pill" data-filter="anonymous">Anonymous</button>
+                            <button type="button" class="analytics-filter-pill" data-filter="resume">Résumé Events</button>
+                        </div>
+                    </div>
+                    <div class="analytics-table-wrap">
+                        <table class="analytics-table" aria-label="Recent visitor activity">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Visitor</th>
+                                    <th scope="col">Activity</th>
+                                    <th scope="col">Date &amp; Time</th>
+                                    <th scope="col">Source</th>
+                                    <th scope="col">Device</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentActivityTableBody">
+                                <tr><td colspan="5" class="analytics-table-empty">Loading visitor activity...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="analytics-pagination" id="activityPagination">
+                        <span class="analytics-pagination-info" id="activityPageInfo">Page 1 of 1</span>
+                        <div class="analytics-pagination-btns">
+                            <button type="button" class="btn btn--sm btn--secondary" id="activityPrevBtn" disabled>Previous</button>
+                            <button type="button" class="btn btn--sm btn--secondary" id="activityNextBtn" disabled>Next</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- F. Résumé Download Records Table -->
+                <div class="admin-panel-card analytics-table-card">
+                    <div class="analytics-table-header">
+                        <div>
+                            <h3 class="analytics-card-title">Résumé Download Records</h3>
+                            <p class="analytics-card-subtitle">Verified server delivery outcomes and voluntary requester details</p>
+                        </div>
+                    </div>
+                    <div class="analytics-table-wrap">
+                        <table class="analytics-table" aria-label="Résumé download records">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Visitor</th>
+                                    <th scope="col">Classification</th>
+                                    <th scope="col">Company</th>
+                                    <th scope="col">Résumé File</th>
+                                    <th scope="col">Recorded Outcome</th>
+                                    <th scope="col">Date &amp; Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resumeDownloadsTableBody">
+                                <tr><td colspan="6" class="analytics-table-empty">Loading résumé download records...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="analytics-pagination" id="downloadsPagination">
+                        <span class="analytics-pagination-info" id="downloadsPageInfo">Page 1 of 1</span>
+                        <div class="analytics-pagination-btns">
+                            <button type="button" class="btn btn--sm btn--secondary" id="downloadsPrevBtn" disabled>Previous</button>
+                            <button type="button" class="btn btn--sm btn--secondary" id="downloadsNextBtn" disabled>Next</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- G. Voluntarily Identified Visitors & Data Retention Controls -->
+                <div class="admin-panel-card analytics-table-card">
+                    <div class="analytics-table-header">
+                        <div>
+                            <h3 class="analytics-card-title">Voluntarily Identified Visitors &amp; Privacy Controls</h3>
+                            <p class="analytics-card-subtitle">Identities provided voluntarily via Contact Form or Résumé Request. Deleting an identity anonymizes linked activity without losing aggregate metrics.</p>
+                        </div>
+                        <div class="analytics-retention-controls">
+                            <select id="analyticsRetentionSelect" class="analytics-select" aria-label="Data retention period">
+                                <option value="90">Purge events &gt; 90 days</option>
+                                <option value="180" selected>Purge events &gt; 180 days</option>
+                                <option value="365">Purge events &gt; 365 days</option>
+                            </select>
+                            <button type="button" class="btn btn--sm btn--secondary admin-btn-danger" id="purgeAnalyticsBtn">Run Retention Purge</button>
+                        </div>
+                    </div>
+                    <div class="analytics-table-wrap">
+                        <table class="analytics-table" aria-label="Voluntarily identified visitors">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Company</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Identification Source</th>
+                                    <th scope="col">Identified At</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="identifiedVisitorsTableBody">
+                                <tr><td colspan="6" class="analytics-table-empty">No voluntarily identified visitors recorded yet.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
         </div>
     </main>
 
-    <script src="js/admin.js"></script>
+    <script src="/js/admin.js"></script>
 </body>
 </html>

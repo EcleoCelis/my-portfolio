@@ -1,6 +1,7 @@
 'use strict';
 
 const db = require('../lib/db');
+const analytics = require('../lib/analytics');
 
 const ALLOWED_INQUIRY_TYPES = new Set([
     'job',
@@ -384,9 +385,24 @@ async function processContactRequest({ method, headers = {}, rawBody = '', clien
         };
     }
 
+    const associateVoluntaryVisitor = async () => {
+        if (!parsedBody || (!parsedBody.sessionId && !parsedBody.visitorId)) return;
+        try {
+            await analytics.registerVoluntaryIdentity({
+                visitorId: parsedBody.visitorId || '',
+                sessionId: parsedBody.sessionId || '',
+                name: validation.data.name,
+                email: validation.data.email,
+                company: validation.data.company || '',
+                source: 'contact_form'
+            });
+        } catch (e) {}
+    };
+
     try {
         const dispatchResult = await dispatchEmailViaProvider(validation.data, env, fetchImpl);
         const dbResult = await db.saveContactInquiry(validation.data, dispatchResult);
+        await associateVoluntaryVisitor();
 
         if (!dispatchResult.configured) {
             return {
@@ -418,6 +434,7 @@ async function processContactRequest({ method, headers = {}, rawBody = '', clien
     } catch (err) {
         // Still attempt to persist inquiry to PostgreSQL even if upstream email provider failed
         const dbResult = await db.saveContactInquiry(validation.data, { delivered: false, provider: 'error' });
+        await associateVoluntaryVisitor();
         // Log operational failure code without logging visitor PII or secrets
         console.error('[api/contact] Delivery provider error:', err && err.name ? err.name : 'UnknownError');
         const fallbackRecipient = sanitizeSingleLine(env.CONTACT_RECIPIENT_EMAIL || 'jomaricelis22@gmail.com', 254);

@@ -14,8 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const tabProjectsBtn = document.getElementById('tabProjectsBtn');
     const tabMessagesBtn = document.getElementById('tabMessagesBtn');
+    const tabAnalyticsBtn = document.getElementById('tabAnalyticsBtn');
     const panelProjects = document.getElementById('panelProjects');
     const panelMessages = document.getElementById('panelMessages');
+    const panelAnalytics = document.getElementById('panelAnalytics');
     const unreadCountBadge = document.getElementById('unreadCountBadge');
 
     // Project Editor Form Elements
@@ -257,27 +259,42 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Switch Tabs
-    const switchTab = (activeTab) => {
-        if (activeTab === 'projects') {
-            tabProjectsBtn.classList.add('active');
-            tabProjectsBtn.setAttribute('aria-selected', 'true');
-            tabMessagesBtn.classList.remove('active');
-            tabMessagesBtn.setAttribute('aria-selected', 'false');
-            panelProjects.hidden = false;
-            panelMessages.hidden = true;
-        } else {
-            tabMessagesBtn.classList.add('active');
-            tabMessagesBtn.setAttribute('aria-selected', 'true');
-            tabProjectsBtn.classList.remove('active');
-            tabProjectsBtn.setAttribute('aria-selected', 'false');
-            panelMessages.hidden = false;
-            panelProjects.hidden = true;
+    const switchTab = (activeTab, syncHistory = true) => {
+        const tabs = [
+            { key: 'projects', btn: tabProjectsBtn, panel: panelProjects },
+            { key: 'messages', btn: tabMessagesBtn, panel: panelMessages },
+            { key: 'analytics', btn: tabAnalyticsBtn, panel: panelAnalytics }
+        ];
+        tabs.forEach(t => {
+            const isActive = t.key === activeTab;
+            if (t.btn) {
+                t.btn.classList.toggle('active', isActive);
+                t.btn.setAttribute('aria-selected', isActive.toString());
+            }
+            if (t.panel) {
+                t.panel.hidden = !isActive;
+            }
+        });
+
+        if (syncHistory && window.history && typeof window.history.replaceState === 'function') {
+            const desiredPath = activeTab === 'analytics' ? '/admin/visitors' : '/admin';
+            if (window.location.pathname !== desiredPath) {
+                try {
+                    window.history.replaceState(null, '', desiredPath);
+                } catch (e) {}
+            }
+        }
+
+        if (activeTab === 'messages') {
             loadMessages();
+        } else if (activeTab === 'analytics') {
+            loadAnalytics();
         }
     };
 
     if (tabProjectsBtn) tabProjectsBtn.addEventListener('click', () => switchTab('projects'));
     if (tabMessagesBtn) tabMessagesBtn.addEventListener('click', () => switchTab('messages'));
+    if (tabAnalyticsBtn) tabAnalyticsBtn.addEventListener('click', () => switchTab('analytics'));
     if (refreshMessagesBtn) refreshMessagesBtn.addEventListener('click', () => loadMessages());
 
     // Check system & auth status
@@ -315,6 +332,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (adminLogoutBtn) adminLogoutBtn.hidden = false;
                 loadProjects();
                 loadMessages();
+                if (window.location && window.location.pathname && window.location.pathname.includes('/visitors')) {
+                    switchTab('analytics', false);
+                }
             } else {
                 if (adminLoginSection) adminLoginSection.hidden = false;
                 if (adminDashboardSection) adminDashboardSection.hidden = true;
@@ -881,6 +901,535 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     };
+
+    /* ==========================================================================
+       VISITORS & ANALYTICS DASHBOARD ENGINE
+       ========================================================================== */
+    const analyticsState = {
+        range: '30d',
+        startDate: '',
+        endDate: '',
+        granularity: 'daily',
+        timezone: 'Asia/Manila',
+        activityPage: 1,
+        activityFilter: 'all',
+        downloadsPage: 1
+    };
+
+    const analyticsTzDisplay = document.getElementById('analyticsTzDisplay');
+    const analyticsTzSelect = document.getElementById('analyticsTzSelect');
+    const analyticsCustomRangeBar = document.getElementById('analyticsCustomRangeBar');
+    const analyticsStartDate = document.getElementById('analyticsStartDate');
+    const analyticsEndDate = document.getElementById('analyticsEndDate');
+    const applyCustomRangeBtn = document.getElementById('applyCustomRangeBtn');
+    const refreshAnalyticsBtn = document.getElementById('refreshAnalyticsBtn');
+    const analyticsErrorBox = document.getElementById('analyticsErrorBox');
+
+    const kpiTotalVisits = document.getElementById('kpiTotalVisits');
+    const kpiVisitsBreakdown = document.getElementById('kpiVisitsBreakdown');
+    const kpiUniqueVisitors = document.getElementById('kpiUniqueVisitors');
+    const kpiIdentifiedSub = document.getElementById('kpiIdentifiedSub');
+    const kpiPageViews = document.getElementById('kpiPageViews');
+    const kpiResumeServed = document.getElementById('kpiResumeServed');
+    const kpiResumeBreakdown = document.getElementById('kpiResumeBreakdown');
+
+    const analyticsResumeFileBadge = document.getElementById('analyticsResumeFileBadge');
+    const analyticsBotsBadge = document.getElementById('analyticsBotsBadge');
+    const analyticsActiveRangeLabel = document.getElementById('analyticsActiveRangeLabel');
+
+    const visitorTrafficChart = document.getElementById('visitorTrafficChart');
+    const resumeTrendChart = document.getElementById('resumeTrendChart');
+
+    const recentActivityTableBody = document.getElementById('recentActivityTableBody');
+    const activityPageInfo = document.getElementById('activityPageInfo');
+    const activityPrevBtn = document.getElementById('activityPrevBtn');
+    const activityNextBtn = document.getElementById('activityNextBtn');
+
+    const resumeDownloadsTableBody = document.getElementById('resumeDownloadsTableBody');
+    const downloadsPageInfo = document.getElementById('downloadsPageInfo');
+    const downloadsPrevBtn = document.getElementById('downloadsPrevBtn');
+    const downloadsNextBtn = document.getElementById('downloadsNextBtn');
+
+    const identifiedVisitorsTableBody = document.getElementById('identifiedVisitorsTableBody');
+    const analyticsRetentionSelect = document.getElementById('analyticsRetentionSelect');
+    const purgeAnalyticsBtn = document.getElementById('purgeAnalyticsBtn');
+
+    const escapeAnalyticsHtml = (str) => String(str == null ? '' : str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
+    const formatTimestampInTz = (isoStr, tz) => {
+        if (!isoStr) return '—';
+        try {
+            return new Intl.DateTimeFormat('en-US', {
+                timeZone: tz || 'Asia/Manila',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }).format(new Date(isoStr));
+        } catch (e) {
+            return new Date(isoStr).toLocaleString();
+        }
+    };
+
+    const renderDualLineChart = (container, series) => {
+        if (!container) return;
+        if (!Array.isArray(series) || series.length === 0) {
+            container.innerHTML = '<div class="analytics-chart-empty">No traffic data available for the selected range.</div>';
+            return;
+        }
+
+        const W = 560;
+        const H = 220;
+        const padL = 38;
+        const padR = 16;
+        const padT = 16;
+        const padB = 34;
+        const plotW = W - padL - padR;
+        const plotH = H - padT - padB;
+
+        const maxVal = Math.max(4, ...series.map(d => Math.max(d.visits || 0, d.pageViews || 0)));
+        const ySteps = 4;
+        const stepX = series.length > 1 ? plotW / (series.length - 1) : 0;
+
+        const getX = (idx) => series.length === 1 ? padL + plotW / 2 : padL + idx * stepX;
+        const getY = (val) => padT + plotH - ((val || 0) / maxVal) * plotH;
+
+        let gridLines = '';
+        for (let i = 0; i <= ySteps; i++) {
+            const val = Math.round((maxVal * i) / ySteps);
+            const y = getY(val);
+            gridLines += `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W - padR}" y2="${y.toFixed(1)}" class="chart-grid-line" />`;
+            gridLines += `<text x="${padL - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end" class="chart-axis-text">${val}</text>`;
+        }
+
+        const visitPoints = series.map((d, i) => `${getX(i).toFixed(1)},${getY(d.visits).toFixed(1)}`).join(' ');
+        const viewPoints = series.map((d, i) => `${getX(i).toFixed(1)},${getY(d.pageViews).toFixed(1)}`).join(' ');
+
+        // X-axis labels (show at most 6 evenly spaced labels to avoid overlap)
+        const maxLabels = Math.min(6, series.length);
+        const labelStep = series.length <= maxLabels ? 1 : Math.ceil((series.length - 1) / (maxLabels - 1));
+        let xLabels = '';
+        series.forEach((d, i) => {
+            if (i === 0 || i === series.length - 1 || i % labelStep === 0) {
+                xLabels += `<text x="${getX(i).toFixed(1)}" y="${H - 10}" text-anchor="middle" class="chart-axis-text">${escapeAnalyticsHtml(d.label)}</text>`;
+            }
+        });
+
+        let dotsHtml = '';
+        series.forEach((d, i) => {
+            const cx = getX(i).toFixed(1);
+            const cyVisits = getY(d.visits).toFixed(1);
+            const cyViews = getY(d.pageViews).toFixed(1);
+            const tipText = `${d.label}: ${d.visits} visit(s), ${d.pageViews} page view(s), ${d.uniqueVisitors} unique`;
+            dotsHtml += `
+                <circle cx="${cx}" cy="${cyViews}" r="3.5" class="chart-dot chart-dot--views" tabindex="0" data-tip="${escapeAnalyticsHtml(tipText)}" aria-label="${escapeAnalyticsHtml(tipText)}" />
+                <circle cx="${cx}" cy="${cyVisits}" r="4" class="chart-dot chart-dot--visits" tabindex="0" data-tip="${escapeAnalyticsHtml(tipText)}" aria-label="${escapeAnalyticsHtml(tipText)}" />
+            `;
+        });
+
+        const lineHtml = series.length > 1
+            ? `<polyline fill="none" points="${viewPoints}" class="chart-line chart-line--views" />
+               <polyline fill="none" points="${visitPoints}" class="chart-line chart-line--visits" />`
+            : '';
+
+        container.innerHTML = `
+            <div class="analytics-svg-wrap">
+                <svg viewBox="0 0 ${W} ${H}" class="analytics-svg" preserveAspectRatio="xMidYMid meet">
+                    ${gridLines}
+                    ${lineHtml}
+                    ${dotsHtml}
+                    ${xLabels}
+                </svg>
+                <div class="analytics-chart-tooltip" hidden></div>
+            </div>
+        `;
+        bindChartTooltips(container);
+    };
+
+    const renderGroupedBarChart = (container, series) => {
+        if (!container) return;
+        if (!Array.isArray(series) || series.length === 0) {
+            container.innerHTML = '<div class="analytics-chart-empty">No résumé download activity in this range.</div>';
+            return;
+        }
+
+        const W = 560;
+        const H = 220;
+        const padL = 38;
+        const padR = 16;
+        const padT = 16;
+        const padB = 34;
+        const plotW = W - padL - padR;
+        const plotH = H - padT - padB;
+
+        const maxVal = Math.max(4, ...series.map(d => Math.max(d.requested || 0, d.served || 0)));
+        const ySteps = 4;
+        const groupW = plotW / series.length;
+        const barW = Math.max(4, Math.min(18, (groupW * 0.65) / 2));
+
+        const getY = (val) => padT + plotH - ((val || 0) / maxVal) * plotH;
+
+        let gridLines = '';
+        for (let i = 0; i <= ySteps; i++) {
+            const val = Math.round((maxVal * i) / ySteps);
+            const y = getY(val);
+            gridLines += `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W - padR}" y2="${y.toFixed(1)}" class="chart-grid-line" />`;
+            gridLines += `<text x="${padL - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end" class="chart-axis-text">${val}</text>`;
+        }
+
+        const maxLabels = Math.min(6, series.length);
+        const labelStep = series.length <= maxLabels ? 1 : Math.ceil((series.length - 1) / (maxLabels - 1));
+        let barsHtml = '';
+        let xLabels = '';
+
+        series.forEach((d, i) => {
+            const centerX = padL + i * groupW + groupW / 2;
+            const reqH = Math.max(d.requested > 0 ? 3 : 0, (d.requested / maxVal) * plotH);
+            const srvH = Math.max(d.served > 0 ? 3 : 0, (d.served / maxVal) * plotH);
+            const reqY = padT + plotH - reqH;
+            const srvY = padT + plotH - srvH;
+            const tipText = `${d.label}: ${d.requested} requested, ${d.served} served${d.unavailable ? ', ' + d.unavailable + ' unavailable' : ''}`;
+
+            barsHtml += `
+                <rect x="${(centerX - barW - 1).toFixed(1)}" y="${reqY.toFixed(1)}" width="${barW.toFixed(1)}" height="${reqH.toFixed(1)}" rx="2" class="chart-bar chart-bar--requested" tabindex="0" data-tip="${escapeAnalyticsHtml(tipText)}" aria-label="${escapeAnalyticsHtml(tipText)}" />
+                <rect x="${(centerX + 1).toFixed(1)}" y="${srvY.toFixed(1)}" width="${barW.toFixed(1)}" height="${srvH.toFixed(1)}" rx="2" class="chart-bar chart-bar--served" tabindex="0" data-tip="${escapeAnalyticsHtml(tipText)}" aria-label="${escapeAnalyticsHtml(tipText)}" />
+            `;
+
+            if (i === 0 || i === series.length - 1 || i % labelStep === 0) {
+                xLabels += `<text x="${centerX.toFixed(1)}" y="${H - 10}" text-anchor="middle" class="chart-axis-text">${escapeAnalyticsHtml(d.label)}</text>`;
+            }
+        });
+
+        container.innerHTML = `
+            <div class="analytics-svg-wrap">
+                <svg viewBox="0 0 ${W} ${H}" class="analytics-svg" preserveAspectRatio="xMidYMid meet">
+                    ${gridLines}
+                    ${barsHtml}
+                    ${xLabels}
+                </svg>
+                <div class="analytics-chart-tooltip" hidden></div>
+            </div>
+        `;
+        bindChartTooltips(container);
+    };
+
+    const bindChartTooltips = (container) => {
+        const tooltip = container.querySelector('.analytics-chart-tooltip');
+        if (!tooltip) return;
+        const targets = container.querySelectorAll('[data-tip]');
+        targets.forEach(el => {
+            const showTip = () => {
+                tooltip.textContent = el.getAttribute('data-tip') || '';
+                tooltip.hidden = false;
+            };
+            const hideTip = () => {
+                tooltip.hidden = true;
+            };
+            el.addEventListener('mouseenter', showTip);
+            el.addEventListener('mouseleave', hideTip);
+            el.addEventListener('focus', showTip);
+            el.addEventListener('blur', hideTip);
+        });
+    };
+
+    const renderRecentActivity = (actData, tz) => {
+        if (!recentActivityTableBody) return;
+        const items = (actData && actData.items) || [];
+        if (items.length === 0) {
+            recentActivityTableBody.innerHTML = '<tr><td colspan="5" class="analytics-table-empty">No visitor activity recorded for this filter and date range.</td></tr>';
+        } else {
+            recentActivityTableBody.innerHTML = items.map(item => {
+                const isId = item.classification === 'identified';
+                const visitorCell = isId
+                    ? `<div class="analytics-visitor-cell">
+                           <span class="analytics-badge analytics-badge--identified">Identified</span>
+                           <strong>${escapeAnalyticsHtml(item.visitorName)}</strong>
+                           ${item.company ? `<span class="analytics-company-sub">· ${escapeAnalyticsHtml(item.company)}</span>` : ''}
+                       </div>`
+                    : `<div class="analytics-visitor-cell">
+                           <span class="analytics-badge analytics-badge--anon">Anonymous</span>
+                           <span class="analytics-anon-name">Anonymous Visitor</span>
+                       </div>`;
+
+                return `
+                    <tr>
+                        <td>${visitorCell}</td>
+                        <td>${escapeAnalyticsHtml(item.activityLabel)}</td>
+                        <td class="analytics-nowrap">${escapeAnalyticsHtml(formatTimestampInTz(item.timestamp, tz))}</td>
+                        <td><span class="analytics-source-chip">${escapeAnalyticsHtml(item.source)}</span></td>
+                        <td class="analytics-capitalize">${escapeAnalyticsHtml(item.deviceCategory)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        const page = (actData && actData.page) || 1;
+        const totalPages = (actData && actData.totalPages) || 1;
+        const total = (actData && actData.total) || 0;
+        if (activityPageInfo) activityPageInfo.textContent = `Page ${page} of ${totalPages} (${total} events)`;
+        if (activityPrevBtn) activityPrevBtn.disabled = page <= 1;
+        if (activityNextBtn) activityNextBtn.disabled = page >= totalPages;
+    };
+
+    const renderResumeDownloads = (dlData, tz) => {
+        if (!resumeDownloadsTableBody) return;
+        const items = (dlData && dlData.items) || [];
+        if (items.length === 0) {
+            resumeDownloadsTableBody.innerHTML = '<tr><td colspan="6" class="analytics-table-empty">No résumé download events recorded in this date range.</td></tr>';
+        } else {
+            resumeDownloadsTableBody.innerHTML = items.map(item => {
+                const isId = item.classification === 'identified';
+                let outcomeClass = 'analytics-badge--requested';
+                if (item.eventType === 'resume_served') outcomeClass = 'analytics-badge--served';
+                else if (item.eventType === 'resume_unavailable') outcomeClass = 'analytics-badge--warn';
+
+                return `
+                    <tr>
+                        <td>${isId ? `<strong>${escapeAnalyticsHtml(item.visitorName)}</strong>` : '<span class="analytics-anon-name">Anonymous Visitor</span>'}</td>
+                        <td><span class="analytics-badge ${isId ? 'analytics-badge--identified' : 'analytics-badge--anon'}">${isId ? 'Identified' : 'Anonymous'}</span></td>
+                        <td>${item.company ? escapeAnalyticsHtml(item.company) : '—'}</td>
+                        <td><code>${escapeAnalyticsHtml(item.resource)}</code></td>
+                        <td><span class="analytics-badge ${outcomeClass}">${escapeAnalyticsHtml(item.outcome)}</span></td>
+                        <td class="analytics-nowrap">${escapeAnalyticsHtml(formatTimestampInTz(item.timestamp, tz))}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        const page = (dlData && dlData.page) || 1;
+        const totalPages = (dlData && dlData.totalPages) || 1;
+        const total = (dlData && dlData.total) || 0;
+        if (downloadsPageInfo) downloadsPageInfo.textContent = `Page ${page} of ${totalPages} (${total} records)`;
+        if (downloadsPrevBtn) downloadsPrevBtn.disabled = page <= 1;
+        if (downloadsNextBtn) downloadsNextBtn.disabled = page >= totalPages;
+    };
+
+    const renderIdentifiedVisitors = (list, tz) => {
+        if (!identifiedVisitorsTableBody) return;
+        if (!Array.isArray(list) || list.length === 0) {
+            identifiedVisitorsTableBody.innerHTML = '<tr><td colspan="6" class="analytics-table-empty">No visitors have voluntarily identified themselves yet.</td></tr>';
+            return;
+        }
+
+        identifiedVisitorsTableBody.innerHTML = list.map(v => {
+            const sourceLabel = v.source === 'resume_request' ? 'Résumé Request Form' : 'Contact Form';
+            return `
+                <tr>
+                    <td><strong>${escapeAnalyticsHtml(v.full_name)}</strong></td>
+                    <td>${v.company ? escapeAnalyticsHtml(v.company) : '—'}</td>
+                    <td>${v.email ? escapeAnalyticsHtml(v.email) : '—'}</td>
+                    <td><span class="analytics-source-chip">${escapeAnalyticsHtml(sourceLabel)}</span></td>
+                    <td class="analytics-nowrap">${escapeAnalyticsHtml(formatTimestampInTz(v.identified_at, tz))}</td>
+                    <td>
+                        <button type="button" class="admin-btn-action admin-btn-action--delete delete-identity-btn" data-id="${v.id}">
+                            Delete PII
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        identifiedVisitorsTableBody.querySelectorAll('.delete-identity-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = btn.getAttribute('data-id');
+                if (!confirm('Delete this visitor\'s personal identity record? Linked historical traffic will remain as Anonymous Visitor.')) return;
+                try {
+                    const res = await fetch(`/api/analytics?action=delete_identity&id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.message || 'Deletion failed');
+                    loadAnalytics();
+                } catch (err) {
+                    alert(err.message || 'Unable to delete identity record.');
+                }
+            });
+        });
+    };
+
+    const loadAnalytics = async () => {
+        if (!panelAnalytics) return;
+        if (analyticsErrorBox) {
+            analyticsErrorBox.textContent = '';
+            analyticsErrorBox.classList.remove('visible');
+        }
+
+        const params = new URLSearchParams({
+            range: analyticsState.range,
+            granularity: analyticsState.granularity,
+            tz: analyticsState.timezone,
+            activityPage: String(analyticsState.activityPage),
+            activityFilter: analyticsState.activityFilter,
+            downloadsPage: String(analyticsState.downloadsPage)
+        });
+        if (analyticsState.range === 'custom' && analyticsState.startDate && analyticsState.endDate) {
+            params.set('start', analyticsState.startDate);
+            params.set('end', analyticsState.endDate);
+        }
+
+        try {
+            const res = await fetch(`/api/analytics?${params.toString()}`);
+            const data = await res.json();
+            if (!res.ok || !data.ok) {
+                throw new Error(data.message || 'Failed to load analytics data.');
+            }
+
+            const s = data.summary || {};
+            if (analyticsTzDisplay) analyticsTzDisplay.textContent = data.timezone || analyticsState.timezone;
+            if (analyticsActiveRangeLabel) {
+                analyticsActiveRangeLabel.textContent = `Period: ${data.startDate} to ${data.endDate} (${data.granularity})`;
+            }
+            if (analyticsStartDate && !analyticsStartDate.value) analyticsStartDate.value = data.startDate;
+            if (analyticsEndDate && !analyticsEndDate.value) analyticsEndDate.value = data.endDate;
+
+            if (kpiTotalVisits) kpiTotalVisits.textContent = String(s.totalVisits ?? 0);
+            if (kpiVisitsBreakdown) {
+                kpiVisitsBreakdown.textContent = `Today: ${s.todayVisits ?? 0} · Week: ${s.weeklyVisits ?? 0} · Month: ${s.monthlyVisits ?? 0}`;
+            }
+            if (kpiUniqueVisitors) kpiUniqueVisitors.textContent = String(s.uniqueVisitors ?? 0);
+            if (kpiIdentifiedSub) {
+                kpiIdentifiedSub.textContent = `Identified: ${s.identifiedVisitors ?? 0} total (${s.identifiedVisitorsInRange ?? 0} in range)`;
+            }
+            if (kpiPageViews) kpiPageViews.textContent = String(s.totalPageViews ?? 0);
+            if (kpiResumeServed) kpiResumeServed.textContent = String(s.resumeServed ?? 0);
+            if (kpiResumeBreakdown) {
+                kpiResumeBreakdown.textContent = `Requested: ${s.resumeRequested ?? 0} · Today: ${s.todayDownloads ?? 0} · Month: ${s.monthlyDownloads ?? 0}`;
+            }
+
+            if (analyticsResumeFileBadge) {
+                analyticsResumeFileBadge.textContent = data.resumeFileAvailable
+                    ? `Résumé PDF (${data.resumeFilename}): Ready`
+                    : `Résumé PDF (${data.resumeFilename}): Pending upload`;
+                analyticsResumeFileBadge.className = 'analytics-meta-badge ' + (data.resumeFileAvailable ? 'analytics-meta-badge--ok' : 'analytics-meta-badge--warn');
+            }
+            if (analyticsBotsBadge) {
+                analyticsBotsBadge.textContent = `Automated bots filtered: ${s.botsFiltered ?? 0}`;
+            }
+
+            renderDualLineChart(visitorTrafficChart, data.trafficSeries);
+            renderGroupedBarChart(resumeTrendChart, data.downloadSeries);
+            renderRecentActivity(data.recentActivity, data.timezone);
+            renderResumeDownloads(data.resumeDownloads, data.timezone);
+            renderIdentifiedVisitors(data.identifiedVisitorsList, data.timezone);
+        } catch (err) {
+            if (analyticsErrorBox) {
+                analyticsErrorBox.textContent = err.message || 'Unable to load visitor analytics.';
+                analyticsErrorBox.classList.add('visible');
+            }
+        }
+    };
+
+    // Bind Analytics Controls
+    document.querySelectorAll('.analytics-range-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.analytics-range-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const selected = btn.getAttribute('data-range') || '30d';
+            analyticsState.range = selected;
+            analyticsState.activityPage = 1;
+            analyticsState.downloadsPage = 1;
+            if (analyticsCustomRangeBar) {
+                analyticsCustomRangeBar.hidden = selected !== 'custom';
+            }
+            if (selected !== 'custom') {
+                loadAnalytics();
+            }
+        });
+    });
+
+    if (applyCustomRangeBtn) {
+        applyCustomRangeBtn.addEventListener('click', () => {
+            if (!analyticsStartDate || !analyticsEndDate || !analyticsStartDate.value || !analyticsEndDate.value) {
+                alert('Please select both Start and End dates.');
+                return;
+            }
+            analyticsState.range = 'custom';
+            analyticsState.startDate = analyticsStartDate.value;
+            analyticsState.endDate = analyticsEndDate.value;
+            analyticsState.activityPage = 1;
+            analyticsState.downloadsPage = 1;
+            loadAnalytics();
+        });
+    }
+
+    document.querySelectorAll('.analytics-gran-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.analytics-gran-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            analyticsState.granularity = btn.getAttribute('data-granularity') || 'daily';
+            loadAnalytics();
+        });
+    });
+
+    if (analyticsTzSelect) {
+        analyticsTzSelect.addEventListener('change', () => {
+            analyticsState.timezone = analyticsTzSelect.value || 'Asia/Manila';
+            loadAnalytics();
+        });
+    }
+
+    if (refreshAnalyticsBtn) {
+        refreshAnalyticsBtn.addEventListener('click', () => loadAnalytics());
+    }
+
+    document.querySelectorAll('.analytics-filter-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+            document.querySelectorAll('.analytics-filter-pill').forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+            analyticsState.activityFilter = pill.getAttribute('data-filter') || 'all';
+            analyticsState.activityPage = 1;
+            loadAnalytics();
+        });
+    });
+
+    if (activityPrevBtn) {
+        activityPrevBtn.addEventListener('click', () => {
+            if (analyticsState.activityPage > 1) {
+                analyticsState.activityPage--;
+                loadAnalytics();
+            }
+        });
+    }
+    if (activityNextBtn) {
+        activityNextBtn.addEventListener('click', () => {
+            analyticsState.activityPage++;
+            loadAnalytics();
+        });
+    }
+    if (downloadsPrevBtn) {
+        downloadsPrevBtn.addEventListener('click', () => {
+            if (analyticsState.downloadsPage > 1) {
+                analyticsState.downloadsPage--;
+                loadAnalytics();
+            }
+        });
+    }
+    if (downloadsNextBtn) {
+        downloadsNextBtn.addEventListener('click', () => {
+            analyticsState.downloadsPage++;
+            loadAnalytics();
+        });
+    }
+
+    if (purgeAnalyticsBtn) {
+        purgeAnalyticsBtn.addEventListener('click', async () => {
+            const days = analyticsRetentionSelect ? analyticsRetentionSelect.value : '180';
+            if (!confirm(`Permanently delete visitor analytics events and sessions older than ${days} days?`)) return;
+            try {
+                const res = await fetch(`/api/analytics?action=purge&retentionDays=${encodeURIComponent(days)}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || 'Retention purge failed');
+                alert(data.message || 'Old analytics data purged.');
+                loadAnalytics();
+            } catch (err) {
+                alert(err.message || 'Unable to purge analytics records.');
+            }
+        });
+    }
 
     // Initial check
     checkAuthStatus();
