@@ -372,33 +372,111 @@ h1, h2, h3, h4 {
 
 .hero__avatar-frame {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    object-fit: cover
 }
 
 .hero__avatar-placeholder {
+    position: relative;
     width: 380px;
     height: 380px;
+    padding: 0;
     background-color: var(--clr-surface);
     border: 1px solid var(--clr-border);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
     font-family: var(--font-heading);
     font-size: 48px;
     font-weight: 600;
     color: var(--clr-text-muted);
-    object-fit: cover;
+    transition: border-color 0.28s ease-in-out;
 }
+
+.hero__avatar-toggle {
+    cursor: pointer;
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.hero__avatar-toggle:focus-visible {
+    outline: 2px solid var(--clr-accent);
+    outline-offset: 4px;
+    border-color: var(--clr-accent);
+}
+
+.hero__avatar-toggle.is-alt-active {
+    border-color: var(--clr-accent);
+}
+
 .my-profile {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: contain;
     border-radius: 50%;
-    
-    
+    pointer-events: none;
+    transition: opacity 0.28s ease-in-out;
+}
+
+.my-profile--primary {
+    object-fit: contain;
+    opacity: 1;
+}
+
+.my-profile--alt {
+    object-fit: cover;
+    object-position: 50% 85%;
+    opacity: 0;
+}
+
+.hero__avatar-toggle.is-alt-active:not([data-alt-failed="true"]) .my-profile--primary {
+    opacity: 0;
+}
+
+.hero__avatar-toggle.is-alt-active:not([data-alt-failed="true"]) .my-profile--alt {
+    opacity: 1;
+}
+
+/* No-JS graceful hover enhancement on pointer-capable devices */
+@media (hover: hover) and (pointer: fine) {
+    .hero__avatar-toggle:hover:not([data-alt-failed="true"]) {
+        border-color: var(--clr-accent);
+    }
+
+    html:not(.js) .hero__avatar-toggle:hover .my-profile--primary {
+        opacity: 0;
+    }
+
+    html:not(.js) .hero__avatar-toggle:hover .my-profile--alt {
+        opacity: 1;
+    }
+}
+
+.hero__avatar-hint {
+    margin-top: 14px;
+    min-height: 1.5em;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--clr-text-muted);
+    text-align: center;
+    line-height: 1.4;
+    transition: color 0.25s ease-in-out;
+}
+
+.hero__avatar-hint.is-alt-active {
+    color: var(--clr-text-main);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero__avatar-placeholder,
+    .my-profile,
+    .hero__avatar-hint {
+        transition: none !important;
+    }
 }
 
 /* ==========================================================================
@@ -1956,7 +2034,7 @@ h1, h2, h3, h4 {
     .hero__desc { margin-inline: auto; }
     .hero__actions { justify-content: center; }
     .hero__avatar-placeholder { width: 200px; height: 200px; font-size: 36px; }
-    .my-profile { width: 100%; height: 100%; object-fit: contain; }
+    .hero__avatar-hint { font-size: 12.5px; margin-top: 10px; }
     .skills__grid, .services__grid, .projects__grid, .certificates__grid { grid-template-columns: 1fr; }
     
     /* Mobile Off-Canvas Hamburg Navigation Menu Execution */

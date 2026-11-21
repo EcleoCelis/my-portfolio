@@ -212,6 +212,127 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ==========================================================================
+       INTERACTIVE HERO PROFILE IMAGE (HOVER, TOUCH & KEYBOARD TOGGLE)
+       ========================================================================== */
+    const profileToggle = document.getElementById('profileImageToggle');
+    const profileHint = document.getElementById('profileImageHint');
+    const profileFunnyImg = document.getElementById('profileFunnyImg');
+
+    if (profileToggle && profileHint) {
+        const primaryImg = profileToggle.querySelector ? profileToggle.querySelector('.my-profile--primary') : null;
+        let isHoveringProfile = false;
+        let isToggledProfile = false;
+        let altProfileFailed = false;
+
+        const isTouchDevice = () => {
+            try {
+                return Boolean(window.matchMedia && window.matchMedia('(hover: none), (pointer: coarse)').matches);
+            } catch (e) {
+                return false;
+            }
+        };
+
+        const getDefaultHintText = () => (
+            isTouchDevice() ? 'Tap to see my other side ✨' : 'Hover to see my other side ✨'
+        );
+
+        const getActiveCaptionText = () => (
+            isTouchDevice()
+                ? 'Still a developer, just less serious 😄 (Tap to switch back)'
+                : 'Still a developer, just less serious 😄'
+        );
+
+        const warmAltImage = () => {
+            if (!profileFunnyImg || altProfileFailed) return;
+            if (profileFunnyImg.getAttribute && profileFunnyImg.getAttribute('loading') === 'lazy') {
+                profileFunnyImg.setAttribute('loading', 'eager');
+            }
+        };
+
+        const syncProfileVisual = () => {
+            if (altProfileFailed) {
+                profileToggle.classList.remove('is-alt-active');
+                profileToggle.setAttribute('aria-pressed', 'false');
+                profileToggle.setAttribute('data-alt-failed', 'true');
+                profileHint.hidden = true;
+                return;
+            }
+
+            const showAlt = isHoveringProfile || isToggledProfile;
+            profileToggle.classList.toggle('is-alt-active', showAlt);
+            profileToggle.setAttribute('aria-pressed', String(showAlt));
+            profileHint.classList.toggle('is-alt-active', showAlt);
+            profileHint.textContent = showAlt ? getActiveCaptionText() : getDefaultHintText();
+
+            if (primaryImg && primaryImg.setAttribute) {
+                primaryImg.setAttribute('aria-hidden', String(showAlt));
+            }
+            if (profileFunnyImg && profileFunnyImg.setAttribute) {
+                profileFunnyImg.setAttribute('aria-hidden', String(!showAlt));
+            }
+        };
+
+        if (profileFunnyImg && typeof profileFunnyImg.addEventListener === 'function') {
+            profileFunnyImg.addEventListener('error', () => {
+                altProfileFailed = true;
+                isHoveringProfile = false;
+                isToggledProfile = false;
+                syncProfileVisual();
+            });
+        }
+
+        // Preload alternate image cleanly after initial load settles to prevent hover flicker without impacting LCP
+        if (window && typeof window.addEventListener === 'function') {
+            window.addEventListener('load', warmAltImage, { once: true });
+        }
+
+        // Desktop pointer hover (explicitly ignores synthetic touch pointerenter/leave)
+        profileToggle.addEventListener('pointerenter', (e) => {
+            if (e && e.pointerType && e.pointerType !== 'mouse') return;
+            if (isTouchDevice()) return;
+            warmAltImage();
+            isHoveringProfile = true;
+            syncProfileVisual();
+        });
+
+        profileToggle.addEventListener('pointerleave', (e) => {
+            if (e && e.pointerType && e.pointerType !== 'mouse') return;
+            isHoveringProfile = false;
+            isToggledProfile = false;
+            syncProfileVisual();
+        });
+
+        // Touch tap & Keyboard Enter/Space activation (native click prevents accidental toggle during scroll)
+        profileToggle.addEventListener('click', (e) => {
+            if (altProfileFailed) return;
+            warmAltImage();
+            const isKeyboard = Boolean(e && e.detail === 0);
+            if (isKeyboard || isTouchDevice()) {
+                isToggledProfile = !isToggledProfile;
+                isHoveringProfile = false;
+            } else {
+                // Mouse click on desktop toggles cleanly
+                const currentlyShown = isHoveringProfile || isToggledProfile;
+                isToggledProfile = !currentlyShown;
+                isHoveringProfile = false;
+            }
+            syncProfileVisual();
+        });
+
+        profileToggle.addEventListener('focus', warmAltImage);
+
+        profileToggle.addEventListener('keydown', (e) => {
+            if (e && e.key === 'Escape' && (isToggledProfile || isHoveringProfile)) {
+                isToggledProfile = false;
+                isHoveringProfile = false;
+                syncProfileVisual();
+            }
+        });
+
+        syncProfileVisual();
+    }
+
+    /* ==========================================================================
        ECOSYSTEM FILTER ENGINE & DENSITY OPTIMIZER (OVERCROWD PREVENTION)
        ========================================================================== */
     const INITIAL_PROJECTS_LIMIT = 4; // Max initial visible cards on homepage to prevent grid overcrowding

@@ -50,12 +50,12 @@ async function runTests() {
         assert(homeRes.headers.get('content-security-policy').includes("default-src 'self'"));
         console.log('[PASS] GET / returns 200 OK with CSP, X-Frame-Options, and X-Content-Type-Options headers.');
 
-        // 2.2 GET static assets (CSS, JS, Hero Image)
-        for (const assetPath of ['/css/style.css', '/js/script.js', '/assets/images/IMG_20230626_135533-removebg-preview.png']) {
+        // 2.2 GET static assets (CSS, JS, Hero Images)
+        for (const assetPath of ['/css/style.css', '/js/script.js', '/assets/images/IMG_20230626_135533-removebg-preview.png', '/assets/images/funny.png']) {
             const res = await fetch(`${baseUrl}${assetPath}`);
             assert.strictEqual(res.status, 200, `Failed to load ${assetPath}`);
         }
-        console.log('[PASS] All public static assets (/css/style.css, /js/script.js, hero PNG) return 200 OK.');
+        console.log('[PASS] All public static assets (/css/style.css, /js/script.js, primary & alternate hero PNGs) return 200 OK.');
 
         // 2.3 Private file protection (.env, server.js, api/contact.js, encoded path traversal)
         for (const forbidden of ['/.env', '/.env.example', '/server.js', '/api/contact.js', '/package.json', '/%2e%2e/server.js', '/css/%2e%2e/server.js']) {
@@ -272,6 +272,9 @@ async function runTests() {
         mockEl('header', 'navbar');
         mockEl('button', 'backToTop');
         mockEl('span', 'typing-text');
+        const profileToggle = mockEl('button', 'profileImageToggle', ['hero__avatar-toggle'], { 'aria-pressed': 'false' });
+        const profileHint = mockEl('p', 'profileImageHint');
+        const profileFunnyImg = mockEl('img', 'profileFunnyImg', ['my-profile', 'my-profile--alt'], { loading: 'lazy' });
         const modal = mockEl('div', 'projectModal', [], { hidden: true });
         mockEl('span', 'projectModalTag');
         const modalTitle = mockEl('h3', 'projectModalTitle');
@@ -324,11 +327,12 @@ async function runTests() {
             }
         };
         global.localStorage = { getItem: () => null, setItem: () => {} };
+        let simulateTouchDevice = false;
         global.window = {
             scrollY: 0,
             innerWidth: 1280,
             location: { protocol: 'http:', href: baseUrl },
-            matchMedia: () => ({ matches: true }),
+            matchMedia: (q = '') => ({ matches: q.includes('hover: none') ? simulateTouchDevice : true }),
             addEventListener: () => {},
             requestAnimationFrame: cb => cb(),
             scrollTo: () => {}
@@ -337,6 +341,49 @@ async function runTests() {
 
         eval(js);
         domLoaded();
+
+        // 4.0 Interactive Hero Profile Image (Desktop Hover, Keyboard, Touch Tap & Error Fallback)
+        assert.strictEqual(profileToggle.classList.contains('is-alt-active'), false);
+        assert.strictEqual(profileHint.textContent, 'Hover to see my other side ✨');
+
+        // Desktop hover in -> reveals alternate image & playful caption
+        await profileToggle.trigger('pointerenter', { pointerType: 'mouse' });
+        assert.strictEqual(profileToggle.classList.contains('is-alt-active'), true);
+        assert.strictEqual(profileToggle.getAttribute('aria-pressed'), 'true');
+        assert.strictEqual(profileHint.textContent, 'Still a developer, just less serious 😄');
+
+        // Desktop hover out -> restores professional portrait & default hint
+        await profileToggle.trigger('pointerleave', { pointerType: 'mouse' });
+        assert.strictEqual(profileToggle.classList.contains('is-alt-active'), false);
+        assert.strictEqual(profileToggle.getAttribute('aria-pressed'), 'false');
+        assert.strictEqual(profileHint.textContent, 'Hover to see my other side ✨');
+
+        // Keyboard Enter/Space activation (detail === 0) & Escape restore
+        await profileToggle.trigger('click', { detail: 0 });
+        assert.strictEqual(profileToggle.classList.contains('is-alt-active'), true);
+        assert.strictEqual(profileToggle.getAttribute('aria-pressed'), 'true');
+        await profileToggle.trigger('keydown', { key: 'Escape' });
+        assert.strictEqual(profileToggle.classList.contains('is-alt-active'), false);
+
+        // Touchscreen device: synthetic touch pointerenter ignored; tap toggles cleanly with touch-specific copy
+        simulateTouchDevice = true;
+        await profileToggle.trigger('pointerenter', { pointerType: 'touch' });
+        assert.strictEqual(profileToggle.classList.contains('is-alt-active'), false, 'Synthetic touch pointerenter must not trigger hover');
+        await profileToggle.trigger('click', { detail: 1 });
+        assert.strictEqual(profileToggle.classList.contains('is-alt-active'), true);
+        assert(profileHint.textContent.includes('Tap to switch back'), 'Touch active caption must guide user to tap back');
+        await profileToggle.trigger('click', { detail: 1 });
+        assert.strictEqual(profileToggle.classList.contains('is-alt-active'), false);
+        assert.strictEqual(profileHint.textContent, 'Tap to see my other side ✨');
+
+        // Broken alternate image fallback: gracefully preserves primary professional portrait
+        await profileToggle.trigger('click', { detail: 1 });
+        assert.strictEqual(profileToggle.classList.contains('is-alt-active'), true);
+        await profileFunnyImg.trigger('error');
+        assert.strictEqual(profileToggle.classList.contains('is-alt-active'), false);
+        assert.strictEqual(profileToggle.getAttribute('data-alt-failed'), 'true');
+        assert.strictEqual(profileHint.hidden, true);
+        console.log('[PASS] Interactive hero profile image verified across desktop hover, keyboard Enter/Escape, touch tap toggling, and broken-image fallback.');
 
         // 4.1 Open Case Study Modal & Request Walkthrough
         await caseBtnNutri.trigger('click');

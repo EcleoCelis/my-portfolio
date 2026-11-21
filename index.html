@@ -81,9 +81,35 @@
                 </div>
                 <div class="hero__visual scroll-reveal">
                     <div class="hero__avatar-frame">
-                        <div class="hero__avatar-placeholder">
-                            <img src="assets/images/IMG_20230626_135533-removebg-preview.png" alt="Portrait of Celis Jomarie" width="478" height="522" fetchpriority="high" class="my-profile">
-                        </div>
+                        <button
+                            type="button"
+                            class="hero__avatar-placeholder hero__avatar-toggle"
+                            id="profileImageToggle"
+                            aria-pressed="false"
+                            aria-describedby="profileImageHint"
+                            aria-label="Toggle between professional portrait and casual photo of Celis Jomarie"
+                        >
+                            <img
+                                src="assets/images/IMG_20230626_135533-removebg-preview.png"
+                                alt="Professional portrait of Celis Jomarie"
+                                width="478"
+                                height="522"
+                                fetchpriority="high"
+                                class="my-profile my-profile--primary"
+                            >
+                            <img
+                                src="assets/images/funny.png"
+                                alt="Casual smiling photo of Celis Jomarie"
+                                width="433"
+                                height="577"
+                                decoding="async"
+                                loading="lazy"
+                                id="profileFunnyImg"
+                                class="my-profile my-profile--alt"
+                                aria-hidden="true"
+                            >
+                        </button>
+                        <p class="hero__avatar-hint" id="profileImageHint" aria-live="polite">Hover to see my other side ✨</p>
                     </div>
                 </div>
             </div>
