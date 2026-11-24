@@ -597,15 +597,15 @@ document.addEventListener('DOMContentLoaded', () => {
         nutricare: {
             tag: 'Health Tech',
             title: 'NutriCare Platform',
-            desc: 'A secure, cloud-enabled operational community platform offering offline metrics gathering and healthcare visualization analytics.',
-            role: 'Capstone Project Leader (2025 — Present) — Led responsive interface architecture in Laravel and Tailwind CSS, optimized relational PostgreSQL queries, and integrated community healthcare analytics subsystems.',
+            desc: 'A Laravel web application for monitoring child growth and evaluating nutritional status using WHO growth standards.',
+            role: 'Capstone Project Team Leader and Developer (2025 - Present). Worked on the Laravel web interface, PostgreSQL database structure, and team coordination across design, testing, and documentation.',
             highlights: [
-                'Designed responsive, accessible dashboard layouts using Laravel Blade and Tailwind CSS.',
-                'Implemented offline-capable community health metrics collection workflows.',
-                'Optimized relational PostgreSQL queries for healthcare visualization and reporting.'
+                'Built a responsive Laravel web interface for recording and tracking child growth records.',
+                'Implemented nutritional status evaluation based on World Health Organization (WHO) growth standards.',
+                'Collaborated with teammates on UI/UX layout, system architecture, testing, and documentation.'
             ],
             tech: ['Laravel', 'Tailwind CSS', 'PostgreSQL'],
-            status: 'Academic Capstone Project — Public live deployment and repository URLs are pending institutional release. Use the button below to request a live code walkthrough or technical architecture review.'
+            status: 'Academic Capstone Project. Live deployment and public repository links are pending school release. Use the button below to request a walkthrough or code review.'
         }
     };
 
@@ -1346,7 +1346,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     formStatus.classList.add('form__success--error', 'visible');
                     formStatus.textContent = err && err.message
                         ? err.message
-                        : `Unable to submit inquiry directly. Your message has been preserved—you may retry or use the email application fallback below.`;
+                        : `Unable to submit your inquiry directly. Your message has been preserved, so you can retry or use the email application fallback below.`;
                 }
                 if (fallbackBox) {
                     fallbackBox.hidden = false;

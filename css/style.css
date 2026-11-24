@@ -496,13 +496,22 @@ h1, h2, h3, h4 {
    ========================================================================== */
 .about__grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: 64px;
+    align-items: start;
+}
+
+.about__bio .paragraph:last-child {
+    margin-bottom: 0;
 }
 
 .about__subtitle {
     font-size: 20px;
     margin: 32px 0 16px;
+}
+
+.about__facts .about__subtitle:first-child {
+    margin-top: 0;
 }
 
 .about__edu-list {
@@ -530,50 +539,6 @@ h1, h2, h3, h4 {
     padding-left: 20px;
     margin-top: 12px;
     line-height: 1.6;
-}
-
-.about__overview-card {
-    background: var(--clr-surface-card);
-    border: 1px solid var(--clr-border);
-    border-radius: var(--radius-md);
-    padding: 24px;
-    margin-bottom: 24px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-}
-
-.about__fact-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.about__fact-list li {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--clr-border);
-}
-
-.about__fact-list li:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-}
-
-.about__fact-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    font-weight: 600;
-    color: var(--clr-text-muted);
-}
-
-.about__fact-value {
-    font-size: 13.5px;
-    font-weight: 500;
-    color: var(--clr-text-main);
-    line-height: 1.4;
 }
 
 .about__counters {
@@ -2147,7 +2112,6 @@ h1, h2, h3, h4 {
     .hero__actions { flex-direction: column; width: 100%; }
     .hero__actions .btn { width: 100%; min-height: 44px; }
 
-    .about__overview-card { padding: 18px 16px; }
     .skills__card, .services__card, .cert-card { padding: 20px 16px; }
     .project-card__content { padding: 16px; }
     .project-card__links { flex-wrap: wrap; gap: 10px; }
