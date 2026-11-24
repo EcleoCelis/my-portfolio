@@ -185,7 +185,11 @@ document.addEventListener('DOMContentLoaded', () => {
        TYPING SIMULATION STRINGS ENGINE
        ========================================================================== */
     const typingText = document.getElementById('typing-text');
-    const phrases = ["IT Support & Systems Aspirant.", "Web & Application Developer.", "Graphic & UI Designer."];
+    const phrases = [
+        "Aspiring IT Professional.",
+        "Offering Web, App & Design Services.",
+        "IT Support & Systems Aspirant."
+    ];
     let phraseIdx = 0;
     let letterIdx = 0;
     let isDeleting = false;

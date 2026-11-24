@@ -488,7 +488,13 @@ h1, h2, h3, h4 {
 
 #typing-text {
     display: inline-block;
-    min-height: 1.18em;
+    margin-top: 8px;
+    font-size: clamp(19px, 2.5vw, 30px);
+    font-weight: 600;
+    line-height: 1.3;
+    min-height: 1.3em;
+    color: var(--clr-text-muted);
+    letter-spacing: -0.01em;
 }
 
 #typing-text::after {
