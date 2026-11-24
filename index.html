@@ -72,6 +72,7 @@
             <div class="hero__bg-grid"></div>
             <div class="hero__container container">
                 <div class="hero__content">
+                    <span class="editorial-kicker hero-stagger hero-stagger--1">Portfolio · 4th-Year BSIT Student</span>
                     <h1 class="hero__title hero-stagger hero-stagger--1">Hello, I'm <span class="hero__name">Celis Jomarie</span><br><span id="typing-text"></span></h1>
                     <p class="hero__desc hero-stagger hero-stagger--2">4th-year BSIT student looking for entry-level IT and OJT opportunities. I focus on computer troubleshooting, network setup and configuration, system administration, and web development, and I am ready to learn and contribute to your team.</p>
                     <div class="hero__actions hero-stagger hero-stagger--3">
@@ -82,6 +83,8 @@
                     <p class="hero__resume-status" id="resumeStatusNote" role="status" aria-live="polite" hidden></p>
                 </div>
                 <div class="hero__visual hero-stagger hero-stagger--visual">
+                    <div class="hero__backdrop-panel" aria-hidden="true"></div>
+                    <span class="editorial-rail hero__rail" aria-hidden="true">CELIS JOMARIE · BSIT</span>
                     <div class="hero__avatar-frame">
                         <button
                             type="button"
@@ -119,7 +122,10 @@
 
         <section id="about" class="about section">
             <div class="container">
-                <h2 class="section-title scroll-reveal">About Me</h2>
+                <div class="section-head scroll-reveal">
+                    <span class="editorial-kicker">01 / Profile</span>
+                    <h2 class="section-title">About Me</h2>
+                </div>
                 <div class="about__grid">
                     <div class="about__bio scroll-reveal">
                         <p class="paragraph">I am a 4th-year Bachelor of Science in Information Technology (BSIT) student at Buenavista Community College getting ready to start my career in IT. While I have built web applications for school projects, I am especially interested in entry-level IT roles where I can apply what I have learned, help with day-to-day technical work, and continue learning from experienced professionals.</p>
@@ -157,7 +163,10 @@
 
         <section id="skills" class="skills section bg-light">
             <div class="container">
-                <h2 class="section-title scroll-reveal">Technical Skills</h2>
+                <div class="section-head scroll-reveal">
+                    <span class="editorial-kicker">02 / Capabilities</span>
+                    <h2 class="section-title">Technical Skills</h2>
+                </div>
                 <div class="skills__grid">
                     <div class="skills__card scroll-reveal">
                         <div class="skills__card-header">
@@ -222,7 +231,10 @@
 
         <section id="services" class="services section">
             <div class="container">
-                <h2 class="section-title scroll-reveal">Core Competencies</h2>
+                <div class="section-head scroll-reveal">
+                    <span class="editorial-kicker">03 / Foundation</span>
+                    <h2 class="section-title">Core Competencies</h2>
+                </div>
                 <div class="services__grid">
                     <div class="services__card scroll-reveal">
                         <div class="icon-badge services__icon-badge" aria-hidden="true">
@@ -250,9 +262,13 @@
         </section>
 
         <section id="projects" class="projects section bg-light">
-            <div class="container">
+            <div class="container projects__container">
+                <span class="editorial-rail projects__rail" aria-hidden="true">SELECTED WORK</span>
                 <div class="projects__header">
-                    <h2 class="section-title projects__section-title scroll-reveal">Featured Projects</h2>
+                    <div class="section-head section-head--compact scroll-reveal">
+                        <span class="editorial-kicker">04 / Portfolio</span>
+                        <h2 class="section-title projects__section-title">Featured Projects</h2>
+                    </div>
                     <a href="projects.html" class="projects__view-all-link scroll-reveal" id="viewAllProjectsHeaderLink" aria-label="View all projects in the archive">
                         <span>View All Projects</span>
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
@@ -296,6 +312,7 @@
         <section id="offer" class="offer section">
             <div class="container">
                 <div class="offer__header scroll-reveal">
+                    <span class="editorial-kicker">05 / Services</span>
                     <h2 class="section-title offer__title">What I Offer</h2>
                     <p class="offer__intro">Alongside my BSIT studies, I take on practical development and design projects for individuals, small businesses, and startups. Whether you need a functional app, a clean website, or visual materials for your brand, I focus on understanding what you actually need and building straightforward solutions that work well.</p>
                 </div>
@@ -366,29 +383,39 @@
 
         <section id="experience" class="experience section">
             <div class="container">
-                <h2 class="section-title scroll-reveal">Academic Experience</h2>
-                <div class="timeline">
-                    <div class="timeline__item scroll-reveal">
-                        <div class="timeline__dot"></div>
-                        <div class="timeline__date">2025 - Present</div>
-                        <div class="timeline__content">
-                            <h3 class="timeline__role">Child Growth Monitoring and Malnutrition Detection System</h3>
-                            <h4 class="timeline__company">Capstone Project | Team Leader/Developer | Technologies: Laravel PHP, PostgreSQL Database, Python</h4>
-                            <ul class="timeline__highlights">
-                                <li>Designed and developed a simple Laravel (PHP)-based web application for monitoring child growth and evaluating nutritional status using WHO growth standards.</li>
-                                <li>Collaborated with team members on UI/UX design, system architecture, testing, and system documentation.</li>
-                            </ul>
-                            
+                <div class="experience__layout">
+                    <div class="experience__aside scroll-reveal">
+                        <span class="editorial-kicker">06 / Academic</span>
+                        <h2 class="section-title experience__title">Academic Experience</h2>
+                        <div class="experience__meta-card">
+                            <span class="experience__meta-label">Timeline</span>
+                            <div class="timeline__date">2025 - Present</div>
+                            <span class="experience__meta-tag">Capstone Project · Team Leader</span>
                         </div>
                     </div>
-
+                    <div class="timeline">
+                        <div class="timeline__item scroll-reveal">
+                            <div class="timeline__dot"></div>
+                            <div class="timeline__content">
+                                <h3 class="timeline__role">Child Growth Monitoring and Malnutrition Detection System</h3>
+                                <h4 class="timeline__company">Capstone Project | Team Leader/Developer | Technologies: Laravel PHP, PostgreSQL Database, Python</h4>
+                                <ul class="timeline__highlights">
+                                    <li>Designed and developed a simple Laravel (PHP)-based web application for monitoring child growth and evaluating nutritional status using WHO growth standards.</li>
+                                    <li>Collaborated with team members on UI/UX design, system architecture, testing, and system documentation.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
         <section id="certificates" class="certificates section bg-light">
             <div class="container">
-                <h2 class="section-title scroll-reveal">Certifications</h2>
+                <div class="section-head scroll-reveal">
+                    <span class="editorial-kicker">07 / Credentials</span>
+                    <h2 class="section-title">Certifications</h2>
+                </div>
                 <div class="certificates__grid">
                     <div class="cert-card scroll-reveal">
                         <div class="cert-card__top">
@@ -418,34 +445,47 @@
 
         <section class="testimonials section">
             <div class="container">
-                <h2 class="section-title testimonials__title scroll-reveal">Peer Endorsements</h2>
-                <div class="carousel-container scroll-reveal" tabindex="0" aria-label="Peer endorsements carousel">
-                    <div class="carousel__quote-mark" aria-hidden="true">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M11 7H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h3v2l3-2V9a2 2 0 0 0-2-2zm10 0h-6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h3v2l3-2V9a2 2 0 0 0-2-2z"></path></svg>
+                <div class="testimonials__layout">
+                    <div class="testimonials__aside scroll-reveal">
+                        <span class="editorial-kicker">08 / Endorsements</span>
+                        <h2 class="section-title testimonials__title">Peer Endorsements</h2>
+                        <p class="testimonials__intro">Feedback from instructors and department mentors at Buenavista Community College.</p>
+                        <div class="carousel-controls">
+                            <button type="button" class="carousel-control-btn" id="prevBtn" aria-label="Previous testimonial">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                            </button>
+                            <div class="carousel-dots" id="carouselDots" role="tablist" aria-label="Select endorsement">
+                                <button type="button" class="carousel-dot active" data-slide="0" aria-label="Show endorsement 1" aria-current="true"></button>
+                                <button type="button" class="carousel-dot" data-slide="1" aria-label="Show endorsement 2" aria-current="false"></button>
+                            </div>
+                            <button type="button" class="carousel-control-btn" id="nextBtn" aria-label="Next testimonial">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                            </button>
+                        </div>
                     </div>
-                    <div class="carousel" id="testimonialCarousel">
-                        <div class="carousel__item is-active">
-                            <p class="carousel__quote">"Celis organizes layout elements with exceptional clarity and structure. His project implementation was clean and well-executed."</p>
-                            <h4 class="carousel__author">Engr. MIT</h4>
-                            <span class="carousel__role">Department Head &amp; Instructor, BCC</span>
+                    <div class="testimonials__stage scroll-reveal">
+                        <span class="editorial-rail testimonials__rail" aria-hidden="true">ENDORSEMENTS</span>
+                        <div class="carousel-container" tabindex="0" aria-label="Peer endorsements carousel">
+                            <div class="carousel__quote-mark" aria-hidden="true">
+                                <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M11 7H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h3v2l3-2V9a2 2 0 0 0-2-2zm10 0h-6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h3v2l3-2V9a2 2 0 0 0-2-2z"></path></svg>
+                            </div>
+                            <div class="carousel" id="testimonialCarousel">
+                                <div class="carousel__item is-active">
+                                    <p class="carousel__quote">"Celis organizes layout elements with exceptional clarity and structure. His project implementation was clean and well-executed."</p>
+                                    <div class="carousel__attribution">
+                                        <h4 class="carousel__author">Engr. MIT</h4>
+                                        <span class="carousel__role">Department Head &amp; Instructor, BCC</span>
+                                    </div>
+                                </div>
+                                <div class="carousel__item">
+                                    <p class="carousel__quote">"Celis was one of our standout leaders in digital product design using Adobe Photoshop. He is a fast learner with solid hands-on design skills, demonstrated through work like the restaurant brochure."</p>
+                                    <div class="carousel__attribution">
+                                        <h4 class="carousel__author">J. Blanco</h4>
+                                        <span class="carousel__role">Graphic Design Instructor, BCC</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="carousel__item">
-                            <p class="carousel__quote">"Celis was one of our standout leaders in digital product design using Adobe Photoshop. He is a fast learner with solid hands-on design skills, demonstrated through work like the restaurant brochure."</p>
-                            <h4 class="carousel__author">J. Blanco</h4>
-                            <span class="carousel__role">Graphic Design Instructor, BCC</span>
-                        </div>
-                    </div>
-                    <div class="carousel-controls">
-                        <button type="button" class="carousel-control-btn" id="prevBtn" aria-label="Previous testimonial">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                        </button>
-                        <div class="carousel-dots" id="carouselDots" role="tablist" aria-label="Select endorsement">
-                            <button type="button" class="carousel-dot active" data-slide="0" aria-label="Show endorsement 1" aria-current="true"></button>
-                            <button type="button" class="carousel-dot" data-slide="1" aria-label="Show endorsement 2" aria-current="false"></button>
-                        </div>
-                        <button type="button" class="carousel-control-btn" id="nextBtn" aria-label="Next testimonial">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -453,7 +493,10 @@
 
         <section id="contact" class="contact section bg-light">
             <div class="container">
-                <h2 class="section-title scroll-reveal">Get in Touch</h2>
+                <div class="section-head scroll-reveal">
+                    <span class="editorial-kicker">09 / Inquiry</span>
+                    <h2 class="section-title">Get in Touch</h2>
+                </div>
                 <div class="contact__grid">
                     <div class="contact__info scroll-reveal">
                         <h3 class="contact__subtitle">Contact Information</h3>

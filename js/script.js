@@ -374,6 +374,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isMatch) {
                 const matchIndex = matchingCards.indexOf(card);
                 if (matchIndex < INITIAL_PROJECTS_LIMIT) {
+                    visibleCount++;
+                    if (typeof card.setAttribute === 'function') {
+                        card.setAttribute('data-slot', String(visibleCount));
+                    }
                     card.hidden = false;
                     card.style.display = 'flex';
                     if (!prefersReducedMotion && card.classList) {
@@ -388,14 +392,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         card.style.opacity = '1';
                         card.style.transform = 'translateY(0)';
                     }
-                    visibleCount++;
                 } else {
+                    if (typeof card.removeAttribute === 'function') card.removeAttribute('data-slot');
                     card.style.opacity = '0';
                     card.style.transform = 'translateY(8px)';
                     card.hidden = true;
                     card.style.display = 'none';
                 }
             } else {
+                if (typeof card.removeAttribute === 'function') card.removeAttribute('data-slot');
                 card.style.opacity = '0';
                 card.style.transform = 'translateY(8px)';
                 card.hidden = true;
@@ -403,8 +408,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Manage Empty State
+        // Manage Empty State & Editorial Grid Visible Count Attribute
         const grid = document.querySelector('.projects__grid');
+        if (grid && typeof grid.setAttribute === 'function') {
+            grid.setAttribute('data-visible-count', String(visibleCount));
+        }
         let emptyState = document.getElementById('projectsEmptyState');
         if (totalMatching === 0) {
             if (!emptyState && grid) {
