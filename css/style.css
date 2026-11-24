@@ -1154,6 +1154,177 @@ h1, h2, h3, h4 {
 }
 
 /* ==========================================================================
+   WHAT I OFFER (SERVICES PRESENTATION & CLIENT COLLABORATION)
+   ========================================================================== */
+.offer {
+    border-bottom: 1px solid var(--clr-border);
+}
+
+.offer__header {
+    max-width: 720px;
+    margin-bottom: 44px;
+}
+
+.offer__title {
+    margin-bottom: 16px;
+}
+
+.offer__intro {
+    font-size: 15.5px;
+    line-height: 1.7;
+    color: var(--clr-text-muted);
+    margin: 0;
+}
+
+.offer__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 28px;
+    align-items: stretch;
+}
+
+.offer__card {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--clr-surface-card);
+    border: 1px solid var(--clr-border);
+    border-radius: var(--radius-md);
+    padding: 32px;
+    transition: var(--transition-smooth);
+}
+
+.offer__card:hover {
+    border-color: var(--clr-text-muted);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .offer__card:hover {
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.32);
+}
+
+.offer__card-head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.offer__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border-radius: var(--radius-md);
+    background-color: rgba(37, 99, 235, 0.08);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    color: var(--clr-accent);
+    flex-shrink: 0;
+}
+
+[data-theme="dark"] .offer__icon {
+    background-color: rgba(59, 130, 246, 0.14);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.offer__card-title {
+    font-size: 19px;
+    line-height: 1.3;
+    color: var(--clr-text-main);
+    margin: 0;
+}
+
+.offer__card-desc {
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: var(--clr-text-muted);
+    margin-bottom: 20px;
+}
+
+.offer__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin-top: auto;
+    padding-top: 18px;
+    border-top: 1px solid var(--clr-border);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.offer__list li {
+    position: relative;
+    padding-left: 16px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--clr-text-muted);
+}
+
+.offer__list li strong {
+    color: var(--clr-text-main);
+    font-weight: 600;
+}
+
+.offer__list li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--clr-accent);
+    font-weight: 700;
+}
+
+.offer__cta-box {
+    margin-top: 40px;
+    padding: 32px 36px;
+    background-color: var(--clr-surface);
+    border: 1px solid var(--clr-border);
+    border-left: 3px solid var(--clr-accent);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+}
+
+.offer__cta-content {
+    max-width: 720px;
+}
+
+.offer__cta-title {
+    font-size: 20px;
+    line-height: 1.3;
+    color: var(--clr-text-main);
+    margin-bottom: 10px;
+}
+
+.offer__cta-text {
+    font-size: 14.5px;
+    line-height: 1.68;
+    color: var(--clr-text-muted);
+    margin: 0;
+}
+
+.offer__cta-action {
+    flex-shrink: 0;
+}
+
+.offer__cta-btn {
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.offer__cta-btn svg {
+    transition: transform 0.2s ease;
+}
+
+.offer__cta-btn:hover svg {
+    transform: translateX(3px);
+}
+
+/* ==========================================================================
    VERTICAL TIMELINE INFRASTRUCTURE
    ========================================================================== */
 .timeline {
@@ -2019,10 +2190,12 @@ h1, h2, h3, h4 {
    ========================================================================== */
 @media (max-width: 1024px) {
     .hero__title { font-size: clamp(28px, 4.2vw, 42px); }
-    .navbar__list { gap: 18px; }
+    .navbar__list { gap: 14px; }
     .navbar__link { font-size: 13px; }
     .about__grid, .contact__grid { grid-template-columns: 1fr; gap: 40px; }
-    .skills__grid, .services__grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .skills__grid, .services__grid, .offer__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+    .offer__card:last-child { grid-column: 1 / -1; }
+    .offer__cta-box { flex-direction: column; align-items: flex-start; gap: 20px; padding: 28px; }
 }
 
 /* Switch to Mobile Off-Canvas Drawer before 8 horizontal links can crowd (<= 900px) */
@@ -2086,8 +2259,11 @@ h1, h2, h3, h4 {
     .hero__avatar-placeholder { width: 204px; height: 204px; font-size: 36px; }
     .hero__avatar-hint { font-size: 12.5px; margin-top: 10px; }
 
-    .skills__grid, .services__grid, .projects__grid, .certificates__grid { grid-template-columns: 1fr; gap: 20px; }
-    .skills__card, .services__card, .cert-card { padding: 24px 20px; }
+    .skills__grid, .services__grid, .offer__grid, .projects__grid, .certificates__grid { grid-template-columns: 1fr; gap: 20px; }
+    .offer__card:last-child { grid-column: auto; }
+    .skills__card, .services__card, .offer__card, .cert-card { padding: 24px 20px; }
+    .offer__header { margin-bottom: 32px; }
+    .offer__cta-box { margin-top: 28px; padding: 24px 20px; }
     .projects__filters { gap: 8px; margin-bottom: 28px; }
     .filter-btn { min-height: 40px; padding: 8px 14px; font-size: 13.5px; }
 
@@ -2112,7 +2288,10 @@ h1, h2, h3, h4 {
     .hero__actions { flex-direction: column; width: 100%; }
     .hero__actions .btn { width: 100%; min-height: 44px; }
 
-    .skills__card, .services__card, .cert-card { padding: 20px 16px; }
+    .skills__card, .services__card, .offer__card, .cert-card { padding: 20px 16px; }
+    .offer__cta-box { padding: 20px 16px; }
+    .offer__cta-action,
+    .offer__cta-btn { width: 100%; min-height: 44px; }
     .project-card__content { padding: 16px; }
     .project-card__links { flex-wrap: wrap; gap: 10px; }
     .project-card__case-btn,

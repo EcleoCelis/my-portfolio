@@ -1170,6 +1170,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Pre-select Freelance / Project Collaboration when coming from What I Offer CTA
+    const offerDiscussBtn = document.getElementById('offerDiscussProjectBtn');
+    if (offerDiscussBtn) {
+        offerDiscussBtn.addEventListener('click', () => {
+            const inquirySelect = document.getElementById('inquiryType');
+            const subjectInput = document.getElementById('subject');
+            if (inquirySelect) inquirySelect.value = 'freelance';
+            if (subjectInput && !subjectInput.value) {
+                subjectInput.value = 'Project Inquiry';
+            }
+        });
+    }
+
     // Direct Email Copy-to-Clipboard Action
     const copyEmailBtn = document.getElementById('copyEmailBtn');
     if (copyEmailBtn) {
