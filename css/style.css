@@ -547,19 +547,21 @@ h1, h2, h3, h4 {
     top: 72px;
     right: clamp(12px, 1.8vw, 26px);
     bottom: 0;
-    width: 64px;
+    width: 248px;
     z-index: 6;
     display: flex;
     align-items: stretch;
     justify-content: flex-end;
-    pointer-events: auto;
+    pointer-events: none;
 }
 
 .hero__tools-viewport {
     position: relative;
-    width: 236px;
+    width: 100%;
+    flex-shrink: 0;
     height: 100%;
-    overflow: clip;
+    overflow-y: clip;
+    overflow-x: visible;
     pointer-events: none;
     mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
     -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
@@ -591,13 +593,15 @@ h1, h2, h3, h4 {
     animation: toolsMarqueeUp 28s linear infinite;
 }
 
-.hero__tools-rail:hover .hero__tools-track,
+.hero__tools-track:hover,
 .hero__tools-rail:focus-within .hero__tools-track {
     animation-play-state: paused;
 }
 
 .hero__tools-group {
     list-style: none;
+    width: 64px;
+    pointer-events: auto;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -640,11 +644,12 @@ h1, h2, h3, h4 {
 }
 
 .tool-badge:hover,
+.tool-badge:focus,
 .tool-badge:focus-visible {
-    transform: scale(1.08);
+    transform: scale(1.1);
     border-color: var(--clr-accent);
-    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.2), 0 0 0 3px var(--clr-accent-soft);
-    z-index: 10;
+    box-shadow: 0 8px 22px rgba(37, 99, 235, 0.25), 0 0 0 3px var(--clr-accent-soft);
+    z-index: 15;
 }
 
 .tool-badge:focus-visible {
@@ -653,50 +658,51 @@ h1, h2, h3, h4 {
 }
 
 .tool-badge:hover .tool-badge__svg,
+.tool-badge:focus .tool-badge__svg,
 .tool-badge:focus-visible .tool-badge__svg {
     transform: scale(1.06);
 }
 
-/* Tooltips open smoothly to the LEFT from the right-side vertical rail */
+/* High-contrast tooltips open cleanly to the LEFT from the right-side rail */
 .tool-badge__label {
     position: absolute;
-    right: calc(100% + 12px);
+    right: calc(100% + 14px);
     left: auto;
     top: 50%;
-    transform: translateY(-50%) translateX(6px);
-    padding: 6px 12px;
+    transform: translateY(-50%) translateX(8px);
+    padding: 7px 13px;
     border-radius: var(--radius-sm);
-    background-color: var(--clr-surface-card);
-    border: 1px solid var(--clr-accent-border);
-    color: var(--clr-text-main);
+    background-color: var(--clr-primary);
+    border: 1px solid var(--clr-primary);
+    color: var(--clr-bg);
     font-family: var(--font-body);
     font-size: 12.5px;
     font-weight: 600;
+    letter-spacing: 0.01em;
     line-height: 1.2;
     white-space: nowrap;
-    box-shadow: var(--shadow-card-hover);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.24);
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
     transition: opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-out), visibility var(--duration-fast);
-    z-index: 20;
+    z-index: 25;
 }
 
 .tool-badge__label::before {
     content: "";
     position: absolute;
-    right: -5px;
+    right: -4px;
     left: auto;
     top: 50%;
     width: 8px;
     height: 8px;
-    background-color: var(--clr-surface-card);
-    border-right: 1px solid var(--clr-accent-border);
-    border-top: 1px solid var(--clr-accent-border);
+    background-color: var(--clr-primary);
     transform: translateY(-50%) rotate(45deg);
 }
 
 .tool-badge:hover .tool-badge__label,
+.tool-badge:focus .tool-badge__label,
 .tool-badge:focus-visible .tool-badge__label {
     opacity: 1;
     visibility: visible;
@@ -3339,6 +3345,7 @@ h1, h2, h3, h4 {
         animation: toolsMarqueeLeft 28s linear infinite;
     }
     .hero__tools-group {
+        width: auto;
         flex-direction: row;
         align-items: center;
         gap: 16px;
@@ -3348,21 +3355,18 @@ h1, h2, h3, h4 {
         left: 50%;
         right: auto;
         top: auto;
-        bottom: calc(100% + 10px);
-        transform: translateX(-50%) translateY(4px);
+        bottom: calc(100% + 12px);
+        transform: translateX(-50%) translateY(6px);
     }
     .tool-badge__label::before {
         left: 50%;
         right: auto;
         top: auto;
-        bottom: -5px;
-        border-top: none;
-        border-left: none;
-        border-bottom: 1px solid var(--clr-accent-border);
-        border-right: 1px solid var(--clr-accent-border);
+        bottom: -4px;
         transform: translateX(-50%) rotate(45deg);
     }
     .tool-badge:hover .tool-badge__label,
+    .tool-badge:focus .tool-badge__label,
     .tool-badge:focus-visible .tool-badge__label {
         transform: translateX(-50%) translateY(0);
     }
