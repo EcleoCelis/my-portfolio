@@ -464,8 +464,9 @@ h1, h2, h3, h4 {
    ========================================================================== */
 .hero {
     position: relative;
-    min-height: clamp(540px, 78vh, 720px);
-    padding: 100px 0 64px;
+    min-height: 100vh;
+    min-height: 100svh;
+    padding: 96px 0 64px;
     display: flex;
     align-items: center;
 }
@@ -525,30 +526,43 @@ h1, h2, h3, h4 {
 
 .hero__container {
     display: grid;
-    grid-template-columns: 64px minmax(0, 1.24fr) minmax(0, 0.86fr);
-    gap: clamp(24px, 3.4vw, 44px);
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: clamp(24px, 3.5vw, 40px);
     align-items: center;
     width: 100%;
+    padding-right: clamp(86px, 7vw, 108px);
 }
 
-/* Left Vertical Seamless Marquee Tool Rail */
+.hero__svg-defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* Right-Side Full-Hero-Height Seamless Vertical Marquee Tool Rail */
 .hero__tools-rail {
-    position: relative;
+    position: absolute;
+    top: 72px;
+    right: clamp(12px, 1.8vw, 26px);
+    bottom: 0;
     width: 64px;
-    z-index: 5;
+    z-index: 6;
     display: flex;
-    align-items: center;
+    align-items: stretch;
+    justify-content: flex-end;
+    pointer-events: auto;
 }
 
 .hero__tools-viewport {
     position: relative;
-    width: 228px;
-    height: 360px;
+    width: 236px;
+    height: 100%;
     overflow: clip;
     pointer-events: none;
-    padding: 4px 0;
-    mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
 }
 
 @keyframes toolsMarqueeUp {
@@ -572,9 +586,9 @@ h1, h2, h3, h4 {
 .hero__tools-track {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: flex-end;
     will-change: transform;
-    animation: toolsMarqueeUp 18s linear infinite;
+    animation: toolsMarqueeUp 28s linear infinite;
 }
 
 .hero__tools-rail:hover .hero__tools-track,
@@ -586,8 +600,9 @@ h1, h2, h3, h4 {
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    padding: 0 0 14px 4px;
+    align-items: flex-end;
+    gap: 20px;
+    padding: 0 6px 20px 0;
     margin: 0;
     flex-shrink: 0;
 }
@@ -596,6 +611,7 @@ h1, h2, h3, h4 {
     position: relative;
     display: flex;
     align-items: center;
+    justify-content: flex-end;
 }
 
 .tool-badge {
@@ -641,11 +657,13 @@ h1, h2, h3, h4 {
     transform: scale(1.06);
 }
 
+/* Tooltips open smoothly to the LEFT from the right-side vertical rail */
 .tool-badge__label {
     position: absolute;
-    left: calc(100% + 12px);
+    right: calc(100% + 12px);
+    left: auto;
     top: 50%;
-    transform: translateY(-50%) translateX(-6px);
+    transform: translateY(-50%) translateX(6px);
     padding: 6px 12px;
     border-radius: var(--radius-sm);
     background-color: var(--clr-surface-card);
@@ -667,13 +685,14 @@ h1, h2, h3, h4 {
 .tool-badge__label::before {
     content: "";
     position: absolute;
-    left: -5px;
+    right: -5px;
+    left: auto;
     top: 50%;
     width: 8px;
     height: 8px;
     background-color: var(--clr-surface-card);
-    border-left: 1px solid var(--clr-accent-border);
-    border-bottom: 1px solid var(--clr-accent-border);
+    border-right: 1px solid var(--clr-accent-border);
+    border-top: 1px solid var(--clr-accent-border);
     transform: translateY(-50%) rotate(45deg);
 }
 
@@ -685,10 +704,12 @@ h1, h2, h3, h4 {
 }
 
 .hero__content {
+    grid-column: 1 / 8;
     min-width: 0;
 }
 
 .hero__visual {
+    grid-column: 8 / 13;
     position: relative;
     min-width: 0;
     display: flex;
@@ -3287,14 +3308,20 @@ h1, h2, h3, h4 {
     .editorial-rail { display: none; }
 
     /* Clean tablet recomposition without desktop negative overlaps */
-    .hero__container { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: 28px; }
+    .hero { flex-direction: column; justify-content: center; min-height: auto; padding: 96px 0 48px; }
+    .hero__container { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: 28px; padding-right: clamp(16px, 4vw, 24px); }
     .hero__content, .hero__visual { grid-column: auto; }
     .hero__tools-rail {
-        grid-column: 1 / -1;
-        order: 3;
+        position: relative;
+        top: auto;
+        right: auto;
+        bottom: auto;
         width: 100%;
+        max-width: var(--container-width);
+        padding: 0 clamp(16px, 4vw, 24px);
         justify-content: center;
-        margin-top: 8px;
+        margin-top: 24px;
+        pointer-events: auto;
     }
     .hero__tools-viewport {
         width: 100%;
@@ -3307,24 +3334,29 @@ h1, h2, h3, h4 {
     }
     .hero__tools-track {
         flex-direction: row;
+        align-items: center;
         width: max-content;
-        animation: toolsMarqueeLeft 20s linear infinite;
+        animation: toolsMarqueeLeft 28s linear infinite;
     }
     .hero__tools-group {
         flex-direction: row;
+        align-items: center;
         gap: 16px;
         padding: 0 16px 0 0;
     }
     .tool-badge__label {
         left: 50%;
+        right: auto;
         top: auto;
         bottom: calc(100% + 10px);
         transform: translateX(-50%) translateY(4px);
     }
     .tool-badge__label::before {
         left: 50%;
+        right: auto;
         top: auto;
         bottom: -5px;
+        border-top: none;
         border-left: none;
         border-bottom: 1px solid var(--clr-accent-border);
         border-right: 1px solid var(--clr-accent-border);
@@ -3507,7 +3539,8 @@ h1, h2, h3, h4 {
         transform: none !important;
     }
 
-    .hero__tools-group--clone {
+    .hero__tools-group--clone,
+    .hero__tools-item--repeat {
         display: none !important;
     }
 
@@ -3515,6 +3548,10 @@ h1, h2, h3, h4 {
         height: auto;
         mask-image: none;
         -webkit-mask-image: none;
+    }
+
+    .hero__tools-rail {
+        align-items: center;
     }
 
     *,
