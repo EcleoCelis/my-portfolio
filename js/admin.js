@@ -1,6 +1,26 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Theme toggle parity across public portfolio, archive, and admin CMS
+    const themeToggleBtn = document.getElementById('themeToggle');
+    if (themeToggleBtn) {
+        const isCurrentDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        themeToggleBtn.setAttribute('aria-pressed', String(isCurrentDark));
+        themeToggleBtn.addEventListener('click', () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const nextTheme = isDark ? 'light' : 'dark';
+            if (nextTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+            themeToggleBtn.setAttribute('aria-pressed', String(nextTheme === 'dark'));
+            try {
+                localStorage.setItem('theme', nextTheme);
+            } catch (e) {}
+        });
+    }
+
     const adminSystemBar = document.getElementById('adminSystemBar');
     const sysDbStatus = document.getElementById('sysDbStatus');
     const sysEmailStatus = document.getElementById('sysEmailStatus');

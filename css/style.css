@@ -4021,20 +4021,22 @@ h1, h2, h3, h4 {
     margin-bottom: 14px;
 }
 
-.form__label {
+.admin-form .form__label {
     display: block;
     font-size: 12.5px;
     font-weight: 600;
     color: var(--clr-text-main);
     margin-bottom: 6px;
+    text-transform: none;
+    letter-spacing: 0;
 }
 
 .admin-req {
     color: #ef4444;
 }
 
-.form__input,
-.form__textarea {
+.admin-form .form__input,
+.admin-form .form__textarea {
     width: 100%;
     padding: 10px 14px;
     font-size: 13.5px;
@@ -4046,14 +4048,14 @@ h1, h2, h3, h4 {
     transition: var(--transition-smooth);
 }
 
-.form__input:focus,
-.form__textarea:focus {
+.admin-form .form__input:focus,
+.admin-form .form__textarea:focus {
     border-color: var(--clr-accent);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    box-shadow: 0 0 0 3px var(--clr-accent-soft);
     outline: none;
 }
 
-.form__row {
+.admin-form .form__row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 14px;
@@ -4061,7 +4063,7 @@ h1, h2, h3, h4 {
 }
 
 @media (max-width: 640px) {
-    .form__row {
+    .admin-form .form__row {
         grid-template-columns: 1fr;
     }
 }
@@ -4217,7 +4219,7 @@ h1, h2, h3, h4 {
     padding: 16px;
     background: var(--clr-surface);
     border: 1px solid var(--clr-border);
-    /* border-radius: 5px; */
+    border-radius: var(--radius-md);
     transition: all 0.2s ease;
 }
 
@@ -5748,5 +5750,17 @@ h1, h2, h3, h4 {
     }
     .admin-btn-nav span {
         display: none;
+    }
+}
+
+/* Final Cascade Guard: Prevent iOS Safari input focus auto-zoom across all pages */
+@media (max-width: 768px) {
+    .form__input,
+    .admin-form .form__input,
+    .admin-form .form__textarea,
+    .archive-search-input,
+    .analytics-select,
+    .analytics-date-input {
+        font-size: 16px;
     }
 }
