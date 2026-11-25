@@ -77,9 +77,43 @@ document.addEventListener('DOMContentLoaded', () => {
         hamburger.addEventListener('click', toggleMenu);
     }
 
+    const jumpToSection = (hashHref) => {
+        if (!hashHref || hashHref.charAt(0) !== '#' || hashHref.length < 2) return false;
+        const target = document.getElementById(hashHref.slice(1));
+        if (!target) return false;
+
+        // Immediately reveal target section elements so there is no blank flash after direct jump
+        if (typeof target.querySelectorAll === 'function') {
+            target.querySelectorAll('.scroll-reveal').forEach(el => {
+                if (el && el.classList) el.classList.add('revealed');
+            });
+        }
+
+        const navEl = document.getElementById('navbar');
+        const navHeight = navEl && navEl.offsetHeight ? navEl.offsetHeight : 72;
+        const targetTop = typeof target.getBoundingClientRect === 'function'
+            ? Math.max(0, Math.round(target.getBoundingClientRect().top + (window.scrollY || 0) - navHeight))
+            : Math.max(0, (target.offsetTop || 0) - navHeight);
+
+        if (typeof window.scrollTo === 'function') {
+            window.scrollTo({ top: targetTop, left: 0, behavior: 'auto' });
+        }
+        if (window.history && typeof window.history.replaceState === 'function') {
+            try {
+                window.history.replaceState(null, '', hashHref);
+            } catch (err) {}
+        }
+        return true;
+    };
+
     navbarLinks.forEach(link => {
-        link.addEventListener('click', () => {
+        link.addEventListener('click', (e) => {
             if (navbarMenu && navbarMenu.classList.contains('open')) closeMenu();
+            const href = link.getAttribute('href') || '';
+            if (href.startsWith('#') && jumpToSection(href)) {
+                e.preventDefault();
+                handleScroll();
+            }
         });
     });
 
