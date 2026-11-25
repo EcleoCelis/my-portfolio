@@ -525,19 +525,170 @@ h1, h2, h3, h4 {
 
 .hero__container {
     display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: clamp(24px, 3.5vw, 40px);
+    grid-template-columns: 64px minmax(0, 1.24fr) minmax(0, 0.86fr);
+    gap: clamp(24px, 3.4vw, 44px);
     align-items: center;
     width: 100%;
 }
 
+/* Left Vertical Seamless Marquee Tool Rail */
+.hero__tools-rail {
+    position: relative;
+    width: 64px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+}
+
+.hero__tools-viewport {
+    position: relative;
+    width: 228px;
+    height: 360px;
+    overflow: clip;
+    pointer-events: none;
+    padding: 4px 0;
+    mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+}
+
+@keyframes toolsMarqueeUp {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+    100% {
+        transform: translate3d(0, -50%, 0);
+    }
+}
+
+@keyframes toolsMarqueeLeft {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+    100% {
+        transform: translate3d(-50%, 0, 0);
+    }
+}
+
+.hero__tools-track {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    will-change: transform;
+    animation: toolsMarqueeUp 18s linear infinite;
+}
+
+.hero__tools-rail:hover .hero__tools-track,
+.hero__tools-rail:focus-within .hero__tools-track {
+    animation-play-state: paused;
+}
+
+.hero__tools-group {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 0 0 14px 4px;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.hero__tools-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.tool-badge {
+    position: relative;
+    pointer-events: auto;
+    width: 52px;
+    height: 52px;
+    padding: 0;
+    border-radius: 50%;
+    background-color: var(--clr-surface-card);
+    border: 1px solid var(--clr-border);
+    box-shadow: var(--shadow-card);
+    color: var(--clr-text-main);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-standard);
+}
+
+.tool-badge__svg {
+    width: 24px;
+    height: 24px;
+    display: block;
+    transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.tool-badge:hover,
+.tool-badge:focus-visible {
+    transform: scale(1.08);
+    border-color: var(--clr-accent);
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.2), 0 0 0 3px var(--clr-accent-soft);
+    z-index: 10;
+}
+
+.tool-badge:focus-visible {
+    outline: 2px solid var(--clr-accent);
+    outline-offset: 2px;
+}
+
+.tool-badge:hover .tool-badge__svg,
+.tool-badge:focus-visible .tool-badge__svg {
+    transform: scale(1.06);
+}
+
+.tool-badge__label {
+    position: absolute;
+    left: calc(100% + 12px);
+    top: 50%;
+    transform: translateY(-50%) translateX(-6px);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    background-color: var(--clr-surface-card);
+    border: 1px solid var(--clr-accent-border);
+    color: var(--clr-text-main);
+    font-family: var(--font-body);
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    box-shadow: var(--shadow-card-hover);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-out), visibility var(--duration-fast);
+    z-index: 20;
+}
+
+.tool-badge__label::before {
+    content: "";
+    position: absolute;
+    left: -5px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    background-color: var(--clr-surface-card);
+    border-left: 1px solid var(--clr-accent-border);
+    border-bottom: 1px solid var(--clr-accent-border);
+    transform: translateY(-50%) rotate(45deg);
+}
+
+.tool-badge:hover .tool-badge__label,
+.tool-badge:focus-visible .tool-badge__label {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-50%) translateX(0);
+}
+
 .hero__content {
-    grid-column: 1 / 8;
     min-width: 0;
 }
 
 .hero__visual {
-    grid-column: 8 / 13;
     position: relative;
     min-width: 0;
     display: flex;
@@ -3138,6 +3289,51 @@ h1, h2, h3, h4 {
     /* Clean tablet recomposition without desktop negative overlaps */
     .hero__container { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: 28px; }
     .hero__content, .hero__visual { grid-column: auto; }
+    .hero__tools-rail {
+        grid-column: 1 / -1;
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        margin-top: 8px;
+    }
+    .hero__tools-viewport {
+        width: 100%;
+        height: auto;
+        padding: 44px 0 10px;
+        overflow-x: clip;
+        overflow-y: visible;
+        mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+    }
+    .hero__tools-track {
+        flex-direction: row;
+        width: max-content;
+        animation: toolsMarqueeLeft 20s linear infinite;
+    }
+    .hero__tools-group {
+        flex-direction: row;
+        gap: 16px;
+        padding: 0 16px 0 0;
+    }
+    .tool-badge__label {
+        left: 50%;
+        top: auto;
+        bottom: calc(100% + 10px);
+        transform: translateX(-50%) translateY(4px);
+    }
+    .tool-badge__label::before {
+        left: 50%;
+        top: auto;
+        bottom: -5px;
+        border-left: none;
+        border-bottom: 1px solid var(--clr-accent-border);
+        border-right: 1px solid var(--clr-accent-border);
+        transform: translateX(-50%) rotate(45deg);
+    }
+    .tool-badge:hover .tool-badge__label,
+    .tool-badge:focus-visible .tool-badge__label {
+        transform: translateX(-50%) translateY(0);
+    }
     .hero__visual { padding: 14px 12px 0; }
     .hero__avatar-frame { transform: none; }
     .hero__backdrop-panel { width: 88%; height: 84%; right: 6px; }
@@ -3304,6 +3500,21 @@ h1, h2, h3, h4 {
         opacity: 1 !important;
         transform: none !important;
         animation: none !important;
+    }
+
+    .hero__tools-track {
+        animation: none !important;
+        transform: none !important;
+    }
+
+    .hero__tools-group--clone {
+        display: none !important;
+    }
+
+    .hero__tools-viewport {
+        height: auto;
+        mask-image: none;
+        -webkit-mask-image: none;
     }
 
     *,
