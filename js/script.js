@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const typingText = document.getElementById('typing-text');
     const phrases = [
         "Aspiring IT Professional.",
-        "Offering Web, App & Design Services.",
+        "Web & App Systems for Local Businesses.",
         "IT Support & Systems Aspirant."
     ];
     let phraseIdx = 0;
@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileHint = document.getElementById('profileImageHint');
     const profileFunnyImg = document.getElementById('profileFunnyImg');
 
-    if (profileToggle && profileHint) {
+    if (profileToggle) {
         const primaryImg = profileToggle.querySelector ? profileToggle.querySelector('.my-profile--primary') : null;
         let isHoveringProfile = false;
         let isToggledProfile = false;
@@ -304,15 +304,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 profileToggle.classList.remove('is-alt-active');
                 profileToggle.setAttribute('aria-pressed', 'false');
                 profileToggle.setAttribute('data-alt-failed', 'true');
-                profileHint.hidden = true;
+                if (profileHint) profileHint.hidden = true;
                 return;
             }
 
             const showAlt = isHoveringProfile || isToggledProfile;
             profileToggle.classList.toggle('is-alt-active', showAlt);
             profileToggle.setAttribute('aria-pressed', String(showAlt));
-            profileHint.classList.toggle('is-alt-active', showAlt);
-            profileHint.textContent = showAlt ? getActiveCaptionText() : getDefaultHintText();
+            if (profileHint) {
+                profileHint.classList.toggle('is-alt-active', showAlt);
+                profileHint.textContent = showAlt ? getActiveCaptionText() : getDefaultHintText();
+            }
 
             if (primaryImg && primaryImg.setAttribute) {
                 primaryImg.setAttribute('aria-hidden', String(showAlt));
